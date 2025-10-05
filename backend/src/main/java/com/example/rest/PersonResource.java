@@ -88,4 +88,11 @@ public class PersonResource {
 
         return Response.noContent().build();
     }
+
+    @GET
+    @Path("/operators-zero-oscars")
+    public Response operatorsZeroOscars() {
+        // Leverage repository via MovieRepository would be better; kept simple here by wiring via Person repo is not present.
+        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+    }
 }

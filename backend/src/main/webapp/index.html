@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Movie IS</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>Movies</h1>
+    <nav>
+      <button id="btn-open-create">Добавить фильм</button>
+      <button id="btn-refresh">Обновить</button>
+    </nav>
+  </header>
+
+  <section class="filters">
+    <input id="filter-name" placeholder="Название" />
+    <input id="filter-genre" placeholder="Жанр" />
+    <input id="filter-mpaa" placeholder="MPAA" />
+    <input id="filter-operator" placeholder="Оператор" />
+    <input id="filter-director" placeholder="Режиссёр" />
+    <input id="filter-screenwriter" placeholder="Сценарист" />
+    <select id="sort-by">
+      <option value="creationDate">creationDate</option>
+      <option value="name">name</option>
+      <option value="oscarsCount">oscarsCount</option>
+      <option value="budget">budget</option>
+    </select>
+    <select id="sort-order">
+      <option value="desc">desc</option>
+      <option value="asc">asc</option>
+    </select>
+    <button id="btn-apply">Применить</button>
+  </section>
+
+  <section>
+    <table id="movies-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>name</th>
+          <th>genre</th>
+          <th>mpaaRating</th>
+          <th>oscars</th>
+          <th>budget</th>
+          <th>operator</th>
+          <th>director</th>
+          <th>screenwriter</th>
+          <th>actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="pager">
+      <button id="prev-page">Назад</button>
+      <span id="page-label">p.1</span>
+      <button id="next-page">Вперёд</button>
+    </div>
+  </section>
+
+  <dialog id="movie-dialog">
+    <form method="dialog" id="movie-form">
+      <h3 id="dlg-title">Новый фильм</h3>
+      <div class="grid">
+        <label>Название <input name="name" required /></label>
+        <label>Жанр <input name="genre" placeholder="ACTION|WESTERN|ADVENTURE|THRILLER|HORROR" required /></label>
+        <label>MPAA <input name="mpaaRating" placeholder="G|PG|PG_13|NC_17" required /></label>
+        <label>Oscars <input name="oscarsCount" type="number" min="1" required /></label>
+        <label>Budget <input name="budget" type="number" min="0.01" step="0.01" required /></label>
+        <label>Total Box Office <input name="totalBoxOffice" type="number" min="1" /></label>
+        <label>Length <input name="length" type="number" min="1" /></label>
+        <label>Golden Palm <input name="goldenPalmCount" type="number" min="1" required /></label>
+        <label>Coord X <input name="coordX" type="number" required /></label>
+        <label>Coord Y <input name="coordY" type="number" required /></label>
+      </div>
+      <fieldset>
+        <legend>Operator (обязателен)</legend>
+        <input name="operatorId" type="number" placeholder="ID существующего Person" />
+      </fieldset>
+      <fieldset>
+        <legend>Director</legend>
+        <input name="directorId" type="number" placeholder="ID существующего Person" />
+      </fieldset>
+      <fieldset>
+        <legend>Screenwriter</legend>
+        <input name="screenwriterId" type="number" placeholder="ID существующего Person" />
+      </fieldset>
+      <menu>
+        <button value="cancel">Отмена</button>
+        <button id="btn-save" value="default">Сохранить</button>
+      </menu>
+      <p class="error" id="dlg-error" hidden></p>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+  <script>
+    if (window.EventSource) {
+      const es = new EventSource('events');
+      es.onmessage = () => {};
+      ['movie-created','movie-updated','movie-deleted'].forEach(n => {
+        es.addEventListener(n, () => window.dispatchEvent(new CustomEvent('data-changed')));
+      });
+    }
+  </script>
+</body>
+</html>
+
+
