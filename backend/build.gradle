@@ -1,12 +1,16 @@
 plugins {
     id 'java'
     id 'com.diffplug.spotless' version '6.25.0'
+    id 'war'
 }
 
 group = 'com.example'
 version = '1.0-SNAPSHOT'
 
-
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 repositories {
     mavenCentral()
@@ -15,13 +19,24 @@ spotless {
     java {
         googleJavaFormat('1.22.0').aosp().reflowLongStrings()
         target 'src/**/*.java'
+        replaceRegex('Remove all comments',
+                // Регулярное выражение для захвата всех Java-комментариев
+                '((//.*)|(/\\*([\\s\\S]*?)\\*/))',
+                ''
+        )
+
+        // Можно добавить удаление лишних пустых строк после удаления комментариев
+        trimTrailingWhitespace()
+        endWithNewline()
     }
 }
 
 dependencies {
+    compileOnly 'jakarta.platform:jakarta.jakartaee-api:10.0.0'
+
     implementation 'org.hibernate:hibernate-core:6.4.4.Final'
 
-    implementation 'com.h2database:h2:2.2.224'
+    implementation 'org.postgresql:postgresql:42.7.3'
 
     compileOnly 'org.projectlombok:lombok:1.18.32'
     annotationProcessor 'org.projectlombok:lombok:1.18.32'
@@ -30,6 +45,9 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
+war {
+    archiveFileName = "${project.name}.war"
+}
 
 test {
     useJUnitPlatform()
