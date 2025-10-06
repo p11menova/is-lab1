@@ -396,63 +396,7 @@ function App() {
       )}
 
       <div className="table-container">
-        {activeTab === 'movies' ? (
-          <table className="movies-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Genre</th>
-                <th>MPAA</th>
-                <th>Oscars</th>
-                <th>Budget</th>
-                <th>Operator</th>
-                <th>Director</th>
-                <th>Screenwriter</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={10} className="loading">Loading...</td>
-                </tr>
-              ) : movies.length === 0 ? (
-                <tr>
-                  <td colSpan={10} className="empty">No movies found</td>
-                </tr>
-              ) : (
-                movies.map((movie) => (
-                  <tr key={movie.id}>
-                    <td>{movie.id}</td>
-                    <td>{movie.name}</td>
-                    <td>{movie.genre}</td>
-                    <td>{movie.mpaaRating}</td>
-                    <td>{movie.oscarsCount}</td>
-                    <td>${movie.budget?.toLocaleString()}</td>
-                    <td>{movie.operator?.name || '-'}</td>
-                    <td>{movie.director?.name || '-'}</td>
-                    <td>{movie.screenwriter?.name || '-'}</td>
-                    <td>
-                      <button
-                        onClick={() => setEditingMovie(movie)}
-                        className="btn btn-sm btn-secondary"
-                      >
-                        <Edit size={14} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(movie.id)}
-                        className="btn btn-sm btn-danger"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        ) : (
+        {activeTab === 'persons' ? (
           <table className="movies-table">
             <thead>
               <tr>
@@ -494,6 +438,72 @@ function App() {
                       </button>
                       <button
                         onClick={() => handleDeletePerson(person.id)}
+                        className="btn btn-sm btn-danger"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        ) : (
+          <table className="movies-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Creation</th>
+                <th>Genre</th>
+                <th>MPAA</th>
+                <th>Oscars</th>
+                <th>Budget</th>
+                <th>Total Box</th>
+                <th>Length</th>
+                <th>Golden Palm</th>
+                <th>Coord</th>
+                <th>Operator</th>
+                <th>Director</th>
+                <th>Screenwriter</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={10} className="loading">Loading...</td>
+                </tr>
+              ) : movies.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="empty">No movies found</td>
+                </tr>
+              ) : (
+                movies.map((movie) => (
+                  <tr key={movie.id}>
+                    <td>{movie.id}</td>
+                    <td>{movie.name}</td>
+                    <td>{movie.creationDate ? new Date(movie.creationDate).toLocaleString() : '-'}</td>
+                    <td>{movie.genre}</td>
+                    <td>{movie.mpaaRating}</td>
+                    <td>{movie.oscarsCount}</td>
+                    <td>${movie.budget?.toLocaleString()}</td>
+                    <td>{movie.totalBoxOffice ? `$${movie.totalBoxOffice.toLocaleString()}` : '-'}</td>
+                    <td>{movie.length ?? '-'}</td>
+                    <td>{movie.goldenPalmCount}</td>
+                    <td>({movie.coordinates?.x}, {movie.coordinates?.y})</td>
+                    <td>{movie.operator?.name || '-'}</td>
+                    <td>{movie.director?.name || '-'}</td>
+                    <td>{movie.screenwriter?.name || '-'}</td>
+                    <td>
+                      <button
+                        onClick={() => setEditingMovie(movie)}
+                        className="btn btn-sm btn-secondary"
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(movie.id)}
                         className="btn btn-sm btn-danger"
                       >
                         <Trash2 size={14} />
