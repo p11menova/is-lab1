@@ -1,0 +1,89 @@
+total 0
+drwxr-xr-x@ 5 sergejpimenov  staff  160 Oct  6 01:06 main
+-rw-r--r--@ 1 sergejpimenov  staff    0 Oct  6 01:21 tree.txt
+
+./main:
+total 0
+drwxr-xr-x@ 3 sergejpimenov  staff   96 Oct  5 16:22 java
+drwxr-xr-x@ 3 sergejpimenov  staff   96 Oct  3 16:14 resources
+drwxr-xr-x@ 6 sergejpimenov  staff  192 Oct  6 01:06 webapp
+
+./main/java:
+total 0
+drwxr-xr-x@ 3 sergejpimenov  staff  96 Oct  3 16:14 com
+
+./main/java/com:
+total 0
+drwxr-xr-x@ 7 sergejpimenov  staff  224 Oct  6 01:06 example
+
+./main/java/com/example:
+total 0
+drwxr-xr-x@ 7 sergejpimenov  staff  224 Oct  6 01:05 models
+drwxr-xr-x@ 3 sergejpimenov  staff   96 Oct  6 01:06 realtime
+drwxr-xr-x@ 5 sergejpimenov  staff  160 Oct  6 01:06 repository
+drwxr-xr-x@ 8 sergejpimenov  staff  256 Oct  6 01:06 rest
+drwxr-xr-x@ 5 sergejpimenov  staff  160 Oct  5 17:34 validators
+
+./main/java/com/example/models:
+total 32
+-rw-r--r--@ 1 sergejpimenov  staff   192 Oct  3 16:14 Coordinates.java
+-rw-r--r--@ 1 sergejpimenov  staff   215 Oct  3 16:14 Location.java
+-rw-r--r--@ 1 sergejpimenov  staff  1844 Oct  6 01:05 Movie.java
+-rw-r--r--@ 1 sergejpimenov  staff  1181 Oct  5 20:20 Person.java
+drwxr-xr-x@ 6 sergejpimenov  staff   192 Oct  3 16:14 enums
+
+./main/java/com/example/models/enums:
+total 32
+-rw-r--r--@ 1 sergejpimenov  staff  112 Oct  3 16:14 Color.java
+-rw-r--r--@ 1 sergejpimenov  staff  100 Oct  3 16:14 Country.java
+-rw-r--r--@ 1 sergejpimenov  staff  128 Oct  3 16:14 MovieGenre.java
+-rw-r--r--@ 1 sergejpimenov  staff   99 Oct  3 16:14 MpaaRating.java
+
+./main/java/com/example/realtime:
+total 8
+-rw-r--r--@ 1 sergejpimenov  staff  1159 Oct  6 01:06 SseBroadcasterService.java
+
+./main/java/com/example/repository:
+total 32
+-rw-r--r--@ 1 sergejpimenov  staff  2427 Oct  6 01:06 DbFunctionsInitializer.java
+-rw-r--r--@ 1 sergejpimenov  staff  7914 Oct  6 01:06 MovieRepository.java
+-rw-r--r--@ 1 sergejpimenov  staff  1094 Oct  6 01:05 PersonRepository.java
+
+./main/java/com/example/rest:
+total 56
+-rw-r--r--@ 1 sergejpimenov  staff   167 Oct  5 17:36 App.java
+-rw-r--r--@ 1 sergejpimenov  staff  1128 Oct  6 01:06 CorsFilter.java
+-rw-r--r--@ 1 sergejpimenov  staff   647 Oct  6 01:06 EventsResource.java
+-rw-r--r--@ 1 sergejpimenov  staff   376 Oct  6 01:05 HealthResource.java
+-rw-r--r--@ 1 sergejpimenov  staff  7279 Oct  6 01:06 MoviesResource.java
+-rw-r--r--@ 1 sergejpimenov  staff  3710 Oct  6 01:06 PersonResource.java
+
+./main/java/com/example/validators:
+total 16
+-rw-r--r--@ 1 sergejpimenov  staff  2507 Oct  5 17:34 MovieValidator.java
+-rw-r--r--@ 1 sergejpimenov  staff  1411 Oct  5 17:34 PersonValidator.java
+drwxr-xr-x@ 3 sergejpimenov  staff    96 Oct  5 17:19 exceptions
+
+./main/java/com/example/validators/exceptions:
+total 8
+-rw-r--r--@ 1 sergejpimenov  staff  185 Oct  5 17:19 ValidationException.java
+
+./main/resources:
+total 0
+drwxr-xr-x@ 4 sergejpimenov  staff  128 Oct  6 01:06 META-INF
+
+./main/resources/META-INF:
+total 16
+-rw-r--r--@ 1 sergejpimenov  staff    89 Oct  4 16:24 microprofile-config.properties
+-rw-r--r--@ 1 sergejpimenov  staff  1112 Oct  6 01:06 persistence.xml
+
+./main/webapp:
+total 40
+drwxr-xr-x@ 3 sergejpimenov  staff    96 Oct  6 01:10 WEB-INF
+-rw-r--r--@ 1 sergejpimenov  staff  6111 Oct  6 01:06 app.js
+-rw-r--r--@ 1 sergejpimenov  staff  4272 Oct  6 01:06 index.html
+-rw-r--r--@ 1 sergejpimenov  staff  1533 Oct  6 01:06 styles.css
+
+./main/webapp/WEB-INF:
+total 8
+-rw-r--r--@ 1 sergejpimenov  staff  445 Oct  6 01:10 web.xml
