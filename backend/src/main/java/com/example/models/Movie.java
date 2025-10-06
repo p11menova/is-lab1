@@ -3,7 +3,8 @@ package com.example.models;
 import com.example.models.enums.MovieGenre;
 import com.example.models.enums.MpaaRating;
 import jakarta.persistence.*;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
+import jakarta.json.bind.annotation.JsonbDateFormat;
 import lombok.Data;
 
 @Data
@@ -19,7 +20,8 @@ public class Movie {
     private String name;
 
     @Column(name = "creation_date", nullable = false)
-    private ZonedDateTime creationDate;
+    @JsonbDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime creationDate;
 
     @Column(name = "oscars_count", nullable = false)
     private Integer oscarsCount;
@@ -65,7 +67,7 @@ public class Movie {
     @PrePersist
     protected void onCreate() {
         if (creationDate == null) {
-            creationDate = ZonedDateTime.now();
+            creationDate = LocalDateTime.now();
         }
     }
 }

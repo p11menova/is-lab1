@@ -180,41 +180,68 @@ public class MovieRepository {
                 .getResultList();
     }
 
-    // ===== DB functions callers (native) =====
+    // ===== DB functions callers (native) with JPQL fallback =====
 
     public List<Object[]> fnCountByMpaaRating() {
-        Query q = em.createNativeQuery("SELECT * FROM fn_count_by_mpaa()");
-        @SuppressWarnings("unchecked")
-        List<Object[]> rows = q.getResultList();
-        return rows;
+        try {
+            Query q = em.createNativeQuery("SELECT * FROM fn_count_by_mpaa()");
+            @SuppressWarnings("unchecked")
+            List<Object[]> rows = q.getResultList();
+            return rows;
+        } catch (Exception e) {
+            // Fallback to JPQL if native function doesn't exist
+            return countMoviesByMpaaRating().entrySet().stream()
+                    .map(entry -> new Object[]{entry.getKey(), entry.getValue()})
+                    .collect(java.util.stream.Collectors.toList());
+        }
     }
 
     public Long fnCountGenreGreaterThan(String threshold) {
-        Query q = em.createNativeQuery("SELECT fn_count_genre_gt(?1)");
-        q.setParameter(1, threshold);
-        Number n = (Number) q.getSingleResult();
-        return n.longValue();
+        try {
+            Query q = em.createNativeQuery("SELECT fn_count_genre_gt(?1)");
+            q.setParameter(1, threshold);
+            Number n = (Number) q.getSingleResult();
+            return n.longValue();
+        } catch (Exception e) {
+            // Fallback to JPQL if native function doesn't exist
+            return countMoviesByGenreGreaterThan(com.example.models.enums.MovieGenre.valueOf(threshold));
+        }
     }
 
     public List<Movie> fnMoviesGenreLessThan(String threshold) {
-        Query q = em.createNativeQuery("SELECT * FROM fn_movies_genre_lt(?1)", Movie.class);
-        q.setParameter(1, threshold);
-        @SuppressWarnings("unchecked")
-        List<Movie> rows = q.getResultList();
-        return rows;
+        try {
+            Query q = em.createNativeQuery("SELECT * FROM fn_movies_genre_lt(?1)", Movie.class);
+            q.setParameter(1, threshold);
+            @SuppressWarnings("unchecked")
+            List<Movie> rows = q.getResultList();
+            return rows;
+        } catch (Exception e) {
+            // Fallback to JPQL if native function doesn't exist
+            return findMoviesByGenreLessThan(com.example.models.enums.MovieGenre.valueOf(threshold));
+        }
     }
 
     public List<Movie> fnMoviesZeroOscars() {
-        Query q = em.createNativeQuery("SELECT * FROM fn_movies_zero_oscars()", Movie.class);
-        @SuppressWarnings("unchecked")
-        List<Movie> rows = q.getResultList();
-        return rows;
+        try {
+            Query q = em.createNativeQuery("SELECT * FROM fn_movies_zero_oscars()", Movie.class);
+            @SuppressWarnings("unchecked")
+            List<Movie> rows = q.getResultList();
+            return rows;
+        } catch (Exception e) {
+            // Fallback to JPQL if native function doesn't exist
+            return findMoviesWithZeroOscars();
+        }
     }
 
     public List<Person> fnOperatorsWithZeroOscars() {
-        Query q = em.createNativeQuery("SELECT * FROM fn_operators_zero_oscars()", Person.class);
-        @SuppressWarnings("unchecked")
-        List<Person> rows = q.getResultList();
-        return rows;
+        try {
+            Query q = em.createNativeQuery("SELECT * FROM fn_operators_zero_oscars()", Person.class);
+            @SuppressWarnings("unchecked")
+            List<Person> rows = q.getResultList();
+            return rows;
+        } catch (Exception e) {
+            // Fallback to JPQL if native function doesn't exist
+            return findOperatorsWhoseMoviesHaveZeroOscars();
+        }
     }
 }

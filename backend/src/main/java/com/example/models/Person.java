@@ -4,6 +4,7 @@ import com.example.models.enums.Color;
 import com.example.models.enums.Country;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import jakarta.json.bind.annotation.JsonbDateFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -37,6 +38,7 @@ public class Person {
     private Location location;
 
     @Column(name = "birthday")
+    @JsonbDateFormat("yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime birthday;
 
     @Enumerated(EnumType.STRING)
