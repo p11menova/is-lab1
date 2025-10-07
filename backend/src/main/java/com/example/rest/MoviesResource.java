@@ -1,10 +1,10 @@
 package com.example.rest;
 
 import com.example.models.Movie;
+import com.example.realtime.SseBroadcasterService;
 import com.example.repository.MovieRepository;
 import com.example.validators.MovieValidator;
 import com.example.validators.exceptions.ValidationException;
-import com.example.realtime.SseBroadcasterService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -106,8 +106,6 @@ public class MoviesResource {
                                             .setY(movieDetails.getCoordinates().getY());
                                 }
 
-                                // TODO: чекать, сущ ли такие пользователи
-
                                 if (movieDetails.getDirector() != null) {
                                     existingMovie.setDirector(movieDetails.getDirector());
                                 }
@@ -120,7 +118,8 @@ public class MoviesResource {
 
                                 Movie updatedMovie = movieRepository.saveOrUpdate(existingMovie);
 
-                                sseService.broadcast("movie-updated", String.valueOf(updatedMovie.getId()));
+                                sseService.broadcast(
+                                        "movie-updated", String.valueOf(updatedMovie.getId()));
                                 return Response.ok(updatedMovie).build();
                             })
                     .orElse(Response.status(Response.Status.NOT_FOUND).build());
@@ -139,8 +138,6 @@ public class MoviesResource {
 
         return Response.status(Response.Status.NO_CONTENT).build();
     }
-
-    // ==== DB function-backed endpoints ====
 
     @GET
     @Path("/group-by-mpaa")

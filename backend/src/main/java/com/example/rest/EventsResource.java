@@ -16,10 +16,9 @@ public class EventsResource {
 
     @GET
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    public void subscribe(@jakarta.ws.rs.core.Context Sse sse, @jakarta.ws.rs.core.Context SseEventSink sink) {
+    public void subscribe(
+            @jakarta.ws.rs.core.Context Sse sse, @jakarta.ws.rs.core.Context SseEventSink sink) {
         sseService.ensureSse(sse);
         sseService.register(sink);
     }
 }
-
-

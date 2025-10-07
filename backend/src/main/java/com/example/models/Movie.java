@@ -2,9 +2,9 @@ package com.example.models;
 
 import com.example.models.enums.MovieGenre;
 import com.example.models.enums.MpaaRating;
+import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import jakarta.json.bind.annotation.JsonbDateFormat;
 import lombok.Data;
 
 @Data

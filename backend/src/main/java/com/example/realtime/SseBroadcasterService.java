@@ -2,10 +2,10 @@ package com.example.realtime;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.sse.OutboundSseEvent;
 import jakarta.ws.rs.sse.Sse;
 import jakarta.ws.rs.sse.SseBroadcaster;
 import jakarta.ws.rs.sse.SseEventSink;
-import jakarta.ws.rs.sse.OutboundSseEvent;
 
 @ApplicationScoped
 public class SseBroadcasterService {
@@ -14,9 +14,7 @@ public class SseBroadcasterService {
     private SseBroadcaster broadcaster;
 
     @PostConstruct
-    void init() {
-        // Sse is created lazily via setter
-    }
+    void init() {}
 
     public synchronized void ensureSse(Sse sse) {
         if (this.sse == null) {
@@ -29,16 +27,15 @@ public class SseBroadcasterService {
         if (broadcaster != null) {
             broadcaster.register(sink);
         } else {
-            // no-op if not initialized yet
+
             sink.close();
         }
     }
 
     public void broadcast(String eventName, String data) {
         if (sse == null || broadcaster == null) return;
-        OutboundSseEvent event = sse.newEventBuilder().name(eventName).data(String.class, data).build();
+        OutboundSseEvent event =
+                sse.newEventBuilder().name(eventName).data(String.class, data).build();
         broadcaster.broadcast(event);
     }
 }
-
-

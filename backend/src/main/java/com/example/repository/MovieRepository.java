@@ -6,8 +6,8 @@ import com.example.models.enums.MovieGenre;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +22,6 @@ public class MovieRepository {
 
     @Transactional
     public Movie saveOrUpdate(Movie movie) {
-
         return em.merge(movie);
     }
 
@@ -50,7 +49,8 @@ public class MovieRepository {
         StringBuilder jpql = new StringBuilder("SELECT m FROM Movie m ");
         boolean needJoinOperator = operatorNameFilter != null && !operatorNameFilter.isBlank();
         boolean needJoinDirector = directorNameFilter != null && !directorNameFilter.isBlank();
-        boolean needJoinScreenwriter = screenwriterNameFilter != null && !screenwriterNameFilter.isBlank();
+        boolean needJoinScreenwriter =
+                screenwriterNameFilter != null && !screenwriterNameFilter.isBlank();
 
         if (needJoinOperator) {
             jpql.append(" LEFT JOIN m.operator op ");
@@ -67,25 +67,36 @@ public class MovieRepository {
             where += (where.isEmpty() ? " WHERE " : " AND ") + " LOWER(m.name) LIKE LOWER(:name) ";
         }
         if (genreFilter != null && !genreFilter.isBlank()) {
-            where += (where.isEmpty() ? " WHERE " : " AND ") + " LOWER(CAST(m.genre as string)) LIKE LOWER(:genre) ";
+            where +=
+                    (where.isEmpty() ? " WHERE " : " AND ")
+                            + " LOWER(CAST(m.genre as string)) LIKE LOWER(:genre) ";
         }
         if (mpaaFilter != null && !mpaaFilter.isBlank()) {
-            where += (where.isEmpty() ? " WHERE " : " AND ") + " LOWER(CAST(m.mpaaRating as string)) LIKE LOWER(:mpaa) ";
+            where +=
+                    (where.isEmpty() ? " WHERE " : " AND ")
+                            + " LOWER(CAST(m.mpaaRating as string)) LIKE LOWER(:mpaa) ";
         }
         if (needJoinOperator) {
-            where += (where.isEmpty() ? " WHERE " : " AND ") + " LOWER(op.name) LIKE LOWER(:opName) ";
+            where +=
+                    (where.isEmpty() ? " WHERE " : " AND ")
+                            + " LOWER(op.name) LIKE LOWER(:opName) ";
         }
         if (needJoinDirector) {
-            where += (where.isEmpty() ? " WHERE " : " AND ") + " LOWER(dir.name) LIKE LOWER(:dirName) ";
+            where +=
+                    (where.isEmpty() ? " WHERE " : " AND ")
+                            + " LOWER(dir.name) LIKE LOWER(:dirName) ";
         }
         if (needJoinScreenwriter) {
-            where += (where.isEmpty() ? " WHERE " : " AND ") + " LOWER(scr.name) LIKE LOWER(:scrName) ";
+            where +=
+                    (where.isEmpty() ? " WHERE " : " AND ")
+                            + " LOWER(scr.name) LIKE LOWER(:scrName) ";
         }
 
         jpql.append(where);
 
         String safeSortBy = (sortBy == null || sortBy.isBlank()) ? "creationDate" : sortBy;
-        String safeSortOrder = (sortOrder != null && sortOrder.equalsIgnoreCase("asc")) ? "ASC" : "DESC";
+        String safeSortOrder =
+                (sortOrder != null && sortOrder.equalsIgnoreCase("asc")) ? "ASC" : "DESC";
         jpql.append(" ORDER BY m." + safeSortBy + " " + safeSortOrder);
 
         TypedQuery<Movie> query = em.createQuery(jpql.toString(), Movie.class);
@@ -180,8 +191,6 @@ public class MovieRepository {
                 .getResultList();
     }
 
-    // ===== DB functions callers (native) with JPQL fallback =====
-
     public List<Object[]> fnCountByMpaaRating() {
         try {
             Query q = em.createNativeQuery("SELECT * FROM fn_count_by_mpaa()");
@@ -189,9 +198,9 @@ public class MovieRepository {
             List<Object[]> rows = q.getResultList();
             return rows;
         } catch (Exception e) {
-            // Fallback to JPQL if native function doesn't exist
+
             return countMoviesByMpaaRating().entrySet().stream()
-                    .map(entry -> new Object[]{entry.getKey(), entry.getValue()})
+                    .map(entry -> new Object[] {entry.getKey(), entry.getValue()})
                     .collect(java.util.stream.Collectors.toList());
         }
     }
@@ -203,8 +212,9 @@ public class MovieRepository {
             Number n = (Number) q.getSingleResult();
             return n.longValue();
         } catch (Exception e) {
-            // Fallback to JPQL if native function doesn't exist
-            return countMoviesByGenreGreaterThan(com.example.models.enums.MovieGenre.valueOf(threshold));
+
+            return countMoviesByGenreGreaterThan(
+                    com.example.models.enums.MovieGenre.valueOf(threshold));
         }
     }
 
@@ -216,8 +226,9 @@ public class MovieRepository {
             List<Movie> rows = q.getResultList();
             return rows;
         } catch (Exception e) {
-            // Fallback to JPQL if native function doesn't exist
-            return findMoviesByGenreLessThan(com.example.models.enums.MovieGenre.valueOf(threshold));
+
+            return findMoviesByGenreLessThan(
+                    com.example.models.enums.MovieGenre.valueOf(threshold));
         }
     }
 
@@ -228,19 +239,20 @@ public class MovieRepository {
             List<Movie> rows = q.getResultList();
             return rows;
         } catch (Exception e) {
-            // Fallback to JPQL if native function doesn't exist
+
             return findMoviesWithZeroOscars();
         }
     }
 
     public List<Person> fnOperatorsWithZeroOscars() {
         try {
-            Query q = em.createNativeQuery("SELECT * FROM fn_operators_zero_oscars()", Person.class);
+            Query q =
+                    em.createNativeQuery("SELECT * FROM fn_operators_zero_oscars()", Person.class);
             @SuppressWarnings("unchecked")
             List<Person> rows = q.getResultList();
             return rows;
         } catch (Exception e) {
-            // Fallback to JPQL if native function doesn't exist
+
             return findOperatorsWhoseMoviesHaveZeroOscars();
         }
     }
