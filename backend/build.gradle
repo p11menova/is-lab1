@@ -46,7 +46,8 @@ dependencies {
 }
 
 war {
-    archiveFileName = "${project.name}.war"
+    archiveFileName = "${project.name}-cursor.war"
+    from 'src/main/webapp'
 }
 
 test {

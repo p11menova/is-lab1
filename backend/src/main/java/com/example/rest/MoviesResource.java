@@ -1,6 +1,7 @@
 package com.example.rest;
 
 import com.example.models.Movie;
+import com.example.realtime.SseBroadcasterService;
 import com.example.repository.MovieRepository;
 import com.example.validators.MovieValidator;
 import com.example.validators.exceptions.ValidationException;
@@ -16,11 +17,13 @@ import java.util.List;
 public class MoviesResource {
 
     @Inject private MovieRepository movieRepository;
+    @Inject private SseBroadcasterService sseService;
 
     @POST
     public Response createMovie(Movie movie) {
         try {
             Movie newMovie = movieRepository.saveOrUpdate(movie);
+            sseService.broadcast("movie-created", String.valueOf(newMovie.getId()));
             return Response.status(Response.Status.CREATED).entity(newMovie).build();
         } catch (ValidationException e) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -30,8 +33,19 @@ public class MoviesResource {
     }
 
     @GET
-    public List<Movie> getAllMovies() {
-        return movieRepository.findAll();
+    public List<Movie> getAllMovies(
+            @QueryParam("page") Integer page,
+            @QueryParam("size") Integer size,
+            @QueryParam("sortBy") String sortBy,
+            @QueryParam("sortOrder") String sortOrder,
+            @QueryParam("name") String name,
+            @QueryParam("genre") String genre,
+            @QueryParam("mpaa") String mpaa,
+            @QueryParam("operator") String operator,
+            @QueryParam("director") String director,
+            @QueryParam("screenwriter") String screenwriter) {
+        return movieRepository.findPagedFilteredSorted(
+                page, size, sortBy, sortOrder, name, genre, mpaa, operator, director, screenwriter);
     }
 
     @GET
@@ -92,8 +106,6 @@ public class MoviesResource {
                                             .setY(movieDetails.getCoordinates().getY());
                                 }
 
-                                // TODO: чекать, сущ ли такие пользователи
-
                                 if (movieDetails.getDirector() != null) {
                                     existingMovie.setDirector(movieDetails.getDirector());
                                 }
@@ -106,6 +118,8 @@ public class MoviesResource {
 
                                 Movie updatedMovie = movieRepository.saveOrUpdate(existingMovie);
 
+                                sseService.broadcast(
+                                        "movie-updated", String.valueOf(updatedMovie.getId()));
                                 return Response.ok(updatedMovie).build();
                             })
                     .orElse(Response.status(Response.Status.NOT_FOUND).build());
@@ -120,7 +134,38 @@ public class MoviesResource {
     @Path("/{id}")
     public Response deleteMovie(@PathParam("id") Long id) {
         movieRepository.deleteById(id);
+        sseService.broadcast("movie-deleted", String.valueOf(id));
 
         return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    @GET
+    @Path("/group-by-mpaa")
+    public Response groupByMpaa() {
+        return Response.ok(movieRepository.fnCountByMpaaRating()).build();
+    }
+
+    @GET
+    @Path("/count-genre-gt")
+    public Response countGenreGt(@QueryParam("threshold") String threshold) {
+        return Response.ok(movieRepository.fnCountGenreGreaterThan(threshold)).build();
+    }
+
+    @GET
+    @Path("/movies-genre-lt")
+    public Response moviesGenreLt(@QueryParam("threshold") String threshold) {
+        return Response.ok(movieRepository.fnMoviesGenreLessThan(threshold)).build();
+    }
+
+    @GET
+    @Path("/zero-oscars")
+    public Response moviesZeroOscars() {
+        return Response.ok(movieRepository.fnMoviesZeroOscars()).build();
+    }
+
+    @GET
+    @Path("/operators-zero-oscars")
+    public Response operatorsZeroOscars() {
+        return Response.ok(movieRepository.fnOperatorsWithZeroOscars()).build();
     }
 }

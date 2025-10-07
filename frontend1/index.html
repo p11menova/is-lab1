@@ -1,0 +1,189 @@
+<!doctype html>
+<html class="no-js" lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Фильмы и Персоны</title>
+  <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+<h4>проверить соединение с сервером:  <button id="health-button">ping</button> <span id="health-output"></span></h4>
+
+<nav>
+  <button class="tab-button" data-tab="movies">Фильмы</button>
+  <button class="tab-button" data-tab="persons" id="persons-tab-button">Персоны</button>
+</nav>
+
+
+<!-- Добавьте эту кнопку в раздел фильмов -->
+<!-- Добавьте эту кнопку в раздел фильмов -->
+<div id="movies-content" class="tab-content active">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>Список фильмов</h2>
+    <button id="add-movie-btn" class="add-movie-btn">Добавить фильм</button>
+  </div>
+  <p class="loading-status">Загрузка данных...</p>
+  <table id="movies-table"></table>
+</div>
+
+<!-- Добавьте этот попап в конец body -->
+<div id="movie-popup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000; width: 500px; max-height: 80vh; overflow-y: auto;">
+  <h3>Добавить новый фильм</h3>
+  <form id="movie-form">
+    <div>
+      <label>Название *: <input type="text" id="movie-name" required value="Слово пацана"></label>
+    </div>
+    <div>
+      <label>Координаты *:</label>
+      <div>
+        <label>X: <input type="number" id="coord-x" required value="1"></label>
+        <label>Y: <input type="number" id="coord-y" required value="2"></label>
+      </div>
+    </div>
+    <div>
+      <label>Дата создания *: <input type="datetime-local" id="creation-date" value="2005-06-18T21:30:00" required></label>
+    </div>
+    <div>
+      <label>Количество оскаров *: <input type="number" id="oscars" min="0" required value="12"></label>
+    </div>
+    <div>
+      <label>Бюджет *: <input type="number" id="budget" step="any" required VALUE="2323333"></label>
+    </div>
+    <div>
+      <label>Кассовые сборы: <input type="number" id="box-office"></label>
+    </div>
+    <div>
+      <label>Рейтинг MPAA *:
+        <select id="mpaa-rating" required>
+          <option value="">Выберите рейтинг</option>
+          <option value="G">G</option>
+          <option value="PG">PG</option>
+          <option value="PG_13">PG-13</option>
+          <option value="NC_17" SELECTED="selected">NC-17</option>
+        </select>
+      </label>
+    </div>
+    <div>
+      <label>Жанр *:
+        <select id="genre" required>
+          <option value="">Выберите жанр</option>
+          <option value="ACTION" SELECTED="selected">ACTION</option>
+          <option value="WESTERN">WESTERN</option>
+          <option value="ADVENTURE">ADVENTURE</option>
+          <option value="THRILLER">THRILLER</option>
+          <option value="HORROR">HORROR</option>
+        </select>
+      </label>
+    </div>
+    <div>
+      <label>Директор:
+        <select id="director">
+          <option value="">Не указан</option>
+        </select>
+      </label>
+    </div>
+    <div>
+      <label>Сценарист:
+        <select id="screenwriter">
+          <option value="">Не указан</option>
+        </select>
+      </label>
+    </div>
+    <div>
+      <label>Оператор *:
+        <select id="operator" required>
+          <option value="">Выберите оператора</option>
+        </select>
+      </label>
+    </div>
+    <div>
+      <label>Золотые пальмы: <input type="number" id="golden-palms" min="0"></label>
+    </div>
+    <div>
+      <label>Длительность: <input type="number" id="length" min="0"></label>
+    </div>
+    <div>
+      <button type="submit">Создать</button>
+      <button type="button" id="cancel-movie-btn">Отмена</button>
+    </div>
+  </form>
+</div><div id="persons-content" class="tab-content">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>Список персон</h2>
+    <button id="add-person-btn" class="add-person-btn">Добавить персону</button>
+  </div>
+  <p class="loading-status">Загрузка данных...</p>
+  <table id="persons-table">
+  </table>
+</div>
+<div id="person-popup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
+  <h3>Добавить новую персону</h3>
+  <form id="person-form">
+    <div>
+      <label>Имя *: <input type="text" id="name" name="name" required value="Вован"></label>
+    </div>
+
+    <div>
+      <label>Цвет глаз:
+        <select id="eyeColor" name="eyeColor">
+          <option value="">NULL</option>
+          <option value="GREEN" selected="selected">GREEN</option>
+          <option value="RED">RED</option>
+          <option value="BLACK">BLACK</option>
+          <option value="YELLOW">YELLOW</option>
+          <option value="ORANGE">ORANGE</option>
+        </select>
+      </label>
+    </div>
+
+    <div>
+      <label>Цвет волос *:
+        <select id="hairColor" name="hairColor" required>
+          <option value="">NULL</option>
+          <option value="GREEN">GREEN</option>
+          <option value="RED" selected="selected">RED</option>
+          <option value="BLACK">BLACK</option>
+          <option value="YELLOW">YELLOW</option>
+          <option value="ORANGE">ORANGE</option>
+        </select>
+      </label>
+    </div>
+
+    <div>
+      <label>Локация *:</label>
+      <div>
+        <label>X: <input type="number" id="locX" name="locX" required value="1"></label>
+        <label>Y: <input type="number" id="locY" name="locY" step="any" required value="2"></label>
+        <label>Z: <input type="number" id="locZ" name="locZ" step="any" required value="3"></label>
+      </div>
+    </div>
+
+    <div>
+      <label>Дата рождения: <input type="datetime-local" id="birthday" name="birthday" value="1990-05-15T10:30:00"></label>
+    </div>
+
+    <div>
+      <label>Национальность:
+        <select id="nationality" name="nationality">
+          <option value="">Не указана</option>
+          <option value="CHINA">Китай</option>
+          <option value="VATICAN">Ватикан</option>
+          <option value="NORTH_KOREA" selected="selected">Северная Корея</option>
+        </select>
+      </label>
+    </div>
+
+    <div>
+      <button type="submit">Создать</button>
+      <button type="button" id="cancel-btn">Отмена</button>
+    </div>
+  </form>
+</div>
+<hr>
+
+
+<script src="js/app.js"></script>
+</body>
+</html>

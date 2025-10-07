@@ -88,4 +88,11 @@ public class PersonResource {
 
         return Response.noContent().build();
     }
+
+    @GET
+    @Path("/operators-zero-oscars")
+    public Response operatorsZeroOscars() {
+
+        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+    }
 }
