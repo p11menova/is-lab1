@@ -59,13 +59,13 @@ function App() {
   });
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
-  const [activeTab, setActiveTab] = useState<'movies' | 'persons' | 'analytics'>('movies');
+  const [activeTab, setActiveTab] = useState<'movies' | 'persons' | 'analytics' | 'import'>('movies');
   const [showPersonDialog, setShowPersonDialog] = useState(false);
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
-  // New state to track if we're viewing analytics results in the table
-  const [isViewingAnalyticsMovies, setIsViewingAnalyticsMovies] = useState(false);
+  const [importHistory, setImportHistory] = useState<any[]>([]);
+  const isAdmin = false; // TODO: Replace with actual auth
 
   // SSE connection
   useEffect(() => {
@@ -77,9 +77,6 @@ function App() {
   }, []);
 
   const loadMovies = async () => {
-    // Only load paginated movies if not viewing analytics results
-    if (isViewingAnalyticsMovies) return;
-
     setLoading(true);
     setError(null);
     try {
@@ -117,12 +114,59 @@ function App() {
   };
 
   useEffect(() => {
-    if (activeTab === 'movies' && !isViewingAnalyticsMovies) {
+    if (activeTab === 'movies' || activeTab === 'persons' || activeTab === 'analytics') {
       loadMovies();
-    } else if (activeTab === 'persons') {
       loadPersons();
     }
-  }, [page, sortBy, sortOrder, filters, activeTab, isViewingAnalyticsMovies]);
+    if (activeTab === 'import') {
+      loadImportHistory();
+    }
+  }, [page, sortBy, sortOrder, filters, activeTab]);
+
+  const loadImportHistory = async () => {
+    try {
+      const url = isAdmin 
+        ? `${API_BASE}/import/history?admin=true`
+        : `${API_BASE}/import/history?username=user`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to load import history');
+      const data = await response.json();
+      setImportHistory(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load import history');
+    }
+  };
+
+  const handleFileImport = async (file: File, type: 'movies' | 'persons') => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const url = `${API_BASE}/import/${type}?filename=${file.name}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/xml' },
+        body: await file.text()
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
+
+      const result = await response.json();
+      await loadImportHistory();
+      if (type === 'movies') await loadMovies();
+      else await loadPersons();
+      
+      setError(null);
+      alert(`✅ Import successful! Imported ${result.objectsCount || 0} ${type}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Import failed');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleFilterChange = (key: keyof Filters, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -160,18 +204,18 @@ function App() {
     try {
       const url = editingPerson ? `${API_BASE}/persons/${editingPerson.id}` : `${API_BASE}/persons`;
       const method = editingPerson ? 'PUT' : 'POST';
-
+      
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(personData)
       });
-
+      
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText);
       }
-
+      
       setShowPersonDialog(false);
       setEditingPerson(null);
       loadPersons();
@@ -184,18 +228,18 @@ function App() {
     try {
       const url = editingMovie ? `${API_BASE}/movies/${editingMovie.id}` : `${API_BASE}/movies`;
       const method = editingMovie ? 'PUT' : 'POST';
-
+      
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(movieData)
       });
-
+      
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText);
       }
-
+      
       setShowCreateDialog(false);
       setEditingMovie(null);
       loadMovies();
@@ -207,12 +251,8 @@ function App() {
   const handleAnalytics = async (operation: string, threshold?: string) => {
     setAnalyticsLoading(true);
     setError(null);
-    setAnalyticsData(null);
-
     try {
       let url = '';
-      let isMovieResult = false;
-
       switch (operation) {
         case 'groupByMpaa':
           url = `${API_BASE}/movies/group-by-mpaa`;
@@ -222,31 +262,19 @@ function App() {
           break;
         case 'moviesGenreLt':
           url = `${API_BASE}/movies/movies-genre-lt?threshold=${threshold}`;
-          isMovieResult = true;
           break;
         case 'zeroOscars':
           url = `${API_BASE}/movies/zero-oscars`;
-          isMovieResult = true;
           break;
         case 'operatorsZeroOscars':
           url = `${API_BASE}/movies/operators-zero-oscars`;
           break;
-        default:
-          return;
       }
-
+      
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch analytics data');
       const data = await response.json();
-
-      if (isMovieResult) {
-        setMovies(data);
-        setIsViewingAnalyticsMovies(true);
-        setActiveTab('movies');
-      } else {
-        setAnalyticsData({ operation, data, threshold });
-        setIsViewingAnalyticsMovies(false);
-      }
+      setAnalyticsData({ operation, data, threshold });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch analytics data');
     } finally {
@@ -254,16 +282,10 @@ function App() {
     }
   };
 
-  const handleClearAnalytics = () => {
-    setAnalyticsData(null);
-    setIsViewingAnalyticsMovies(false);
-    setPage(0);
-  };
-
   return (
     <div className="app">
       <header className="header">
-        <h1>    Movies Information System</h1>
+        <h1>Movies Management</h1>
         <div className="header-actions">
           <button onClick={() => setShowCreateDialog(true)} className="btn btn-primary">
             <Plus size={16} />
@@ -273,7 +295,18 @@ function App() {
             <Plus size={16} />
             Add Person
           </button>
-          <button onClick={activeTab === 'movies' ? loadMovies : loadPersons} className="btn btn-secondary">
+          <button 
+            onClick={() => {
+              if (activeTab === 'movies') {
+                loadMovies();
+              } else if (activeTab === 'persons') {
+                loadPersons();
+              } else if (activeTab === 'import') {
+                loadImportHistory();
+              }
+            }} 
+            className="btn btn-secondary"
+          >
             <RefreshCw size={16} />
             Refresh
           </button>
@@ -281,27 +314,36 @@ function App() {
       </header>
 
       <div className="tabs">
-        <button
+        <button 
           className={`tab ${activeTab === 'movies' ? 'active' : ''}`}
-          onClick={() => { setActiveTab('movies'); setIsViewingAnalyticsMovies(false); setAnalyticsData(null); }}
+          onClick={() => setActiveTab('movies')}
         >
           Movies
         </button>
-        <button
+        <button 
           className={`tab ${activeTab === 'persons' ? 'active' : ''}`}
-          onClick={() => { setActiveTab('persons'); setIsViewingAnalyticsMovies(false); setAnalyticsData(null); }}
+          onClick={() => setActiveTab('persons')}
         >
           Persons
         </button>
-        <button
+        <button 
           className={`tab ${activeTab === 'analytics' ? 'active' : ''}`}
-          onClick={() => setActiveTab('analytics')}
+          onClick={() => {
+            setActiveTab('analytics');
+            setAnalyticsData(null);
+          }}
         >
           Analytics
         </button>
+        <button 
+          className={`tab ${activeTab === 'import' ? 'active' : ''}`}
+          onClick={() => setActiveTab('import')}
+        >
+          Import
+        </button>
       </div>
 
-      {activeTab === 'movies' && !isViewingAnalyticsMovies && ( // Hide filters when viewing analytics results
+      {activeTab === 'movies' && (
         <div className="filters">
           <div className="filter-group">
             <input
@@ -361,22 +403,29 @@ function App() {
       )}
 
       {error && (
-        <div className="error">
-          {error}
+        <div className="error" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>{error}</span>
+          <button 
+            onClick={() => setError(null)} 
+            className="btn btn-sm"
+            style={{ padding: '0.25rem 0.5rem', minWidth: 'auto' }}
+          >
+            <X size={14} />
+          </button>
         </div>
       )}
 
       {activeTab === 'analytics' && (
         <div className="analytics">
           <div className="analytics-buttons">
-            <button
+            <button 
               onClick={() => handleAnalytics('groupByMpaa')}
               className="btn btn-primary"
               disabled={analyticsLoading}
             >
               Group by MPAA Rating
             </button>
-            <button
+            <button 
               onClick={() => {
                 const threshold = prompt('Enter genre threshold (ACTION, WESTERN, ADVENTURE, THRILLER, HORROR):');
                 if (threshold) handleAnalytics('countGenreGt', threshold);
@@ -386,7 +435,7 @@ function App() {
             >
               Count Genre Greater Than
             </button>
-            <button
+            <button 
               onClick={() => {
                 const threshold = prompt('Enter genre threshold (ACTION, WESTERN, ADVENTURE, THRILLER, HORROR):');
                 if (threshold) handleAnalytics('moviesGenreLt', threshold);
@@ -396,14 +445,14 @@ function App() {
             >
               Movies Genre Less Than
             </button>
-            <button
+            <button 
               onClick={() => handleAnalytics('zeroOscars')}
               className="btn btn-primary"
               disabled={analyticsLoading}
             >
               Movies with Zero Oscars
             </button>
-            <button
+            <button 
               onClick={() => handleAnalytics('operatorsZeroOscars')}
               className="btn btn-primary"
               disabled={analyticsLoading}
@@ -411,177 +460,247 @@ function App() {
               Operators with Zero Oscars
             </button>
           </div>
-
+          
           {analyticsLoading && (
             <div className="loading">Loading analytics...</div>
           )}
-
+          
           {analyticsData && (
             <div className="analytics-results">
               <h3>Results:</h3>
               <pre>{JSON.stringify(analyticsData.data, null, 2)}</pre>
-              <button
-                onClick={() => setAnalyticsData(null)}
-                className="btn btn-secondary"
-              >
-                <X size={16} />
-                Clear JSON Results
-              </button>
             </div>
           )}
         </div>
       )}
 
-      {activeTab === 'movies' && isViewingAnalyticsMovies && (
-        <div className="analytics-movies-info">
-          <p className="analytics-comment-info">currently displaying analytics results
-            <button onClick={handleClearAnalytics} className="btn btn-secondary btn-sm">
-              <X size={14} /> clear
-            </button>
-          </p>
+      {activeTab === 'import' && (
+        <div className="analytics">
+          <h2>Import Data</h2>
+          <div className="import-section">
+            <div className="import-group">
+              <h3>Import Movies</h3>
+              <input
+                type="file"
+                accept=".xml"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleFileImport(file, 'movies');
+                }}
+                id="movies-file-input"
+                style={{ display: 'none' }}
+              />
+              <label htmlFor="movies-file-input" className="btn btn-primary">
+                Choose Movies XML File
+              </label>
+            </div>
+            <div className="import-group">
+              <h3>Import Persons</h3>
+              <input
+                type="file"
+                accept=".xml"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleFileImport(file, 'persons');
+                }}
+                id="persons-file-input"
+                style={{ display: 'none' }}
+              />
+              <label htmlFor="persons-file-input" className="btn btn-primary">
+                Choose Persons XML File
+              </label>
+            </div>
+          </div>
+          
+          <div className="import-history">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3>Import History</h3>
+              <button onClick={loadImportHistory} className="btn btn-secondary">
+                <RefreshCw size={16} />
+                Refresh
+              </button>
+            </div>
+            <table className="movies-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Objects Count</th>
+                  <th>File Name</th>
+                  <th>Error</th>
+                </tr>
+              </thead>
+              <tbody>
+                {importHistory.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="empty">No import history</td>
+                  </tr>
+                ) : (
+                  importHistory.map((item) => (
+                    <tr key={item.id}>
+                      <td>{item.id}</td>
+                      <td>{item.username}</td>
+                      <td>{item.importDate ? new Date(item.importDate).toLocaleString() : '-'}</td>
+                      <td>
+                        <span className={`status-badge ${item.status?.toLowerCase()}`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td>{item.objectsCount ?? '-'}</td>
+                      <td>{item.fileName || '-'}</td>
+                      <td>{item.errorMessage ? <span className="error-text" title={item.errorMessage}>{item.errorMessage}</span> : '-'}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
-
-      <div className="table-container">
-        {activeTab === 'persons' ? (
-          <table className="movies-table" id={"persons_table"}>
+      {(activeTab === 'movies' || activeTab === 'persons') && (
+        <div className="table-container">
+          {activeTab === 'persons' ? (
+          <table className="movies-table">
             <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Eye Color</th>
-              <th>Hair Color</th>
-              <th>Location</th>
-              <th>Birthday</th>
-              <th>Nationality</th>
-              <th>Actions</th>
-            </tr>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Eye Color</th>
+                <th>Hair Color</th>
+                <th>Location</th>
+                <th>Birthday</th>
+                <th>Nationality</th>
+                <th>Actions</th>
+              </tr>
             </thead>
             <tbody>
-            {loading && !isViewingAnalyticsMovies ? (
-              <tr>
-                <td colSpan={8} className="loading">Loading...</td>
-              </tr>
-            ) : persons.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="empty">No persons found</td>
-              </tr>
-            ) : (
-              persons.map((person) => (
-                <tr key={person.id}>
-                  <td>{person.id}</td>
-                  <td>{person.name}</td>
-                  <td>{person.eyeColor || '-'}</td>
-                  <td>{person.hairColor}</td>
-                  <td>({person.location.x}, {person.location.y}, {person.location.z})</td>
-                  <td>{person.birthday ? new Date(person.birthday).toLocaleDateString() : '-'}</td>
-                  <td>{person.nationality || '-'}</td>
-                  <td>
-                    <button
-                      onClick={() => setEditingPerson(person)}
-                      className="btn btn-sm btn-secondary"
-                    >
-                      <Edit size={14} />
-                    </button>
-                    <button
-                      onClick={() => handleDeletePerson(person.id)}
-                      className="btn btn-sm btn-danger"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </td>
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="loading">Loading...</td>
                 </tr>
-              ))
-            )}
+              ) : persons.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="empty">No persons found</td>
+                </tr>
+              ) : (
+                persons.map((person) => (
+                  <tr key={person.id}>
+                    <td>{person.id}</td>
+                    <td>{person.name}</td>
+                    <td>{person.eyeColor || '-'}</td>
+                    <td>{person.hairColor}</td>
+                    <td>({person.location.x}, {person.location.y}, {person.location.z})</td>
+                    <td>{person.birthday ? new Date(person.birthday).toLocaleDateString() : '-'}</td>
+                    <td>{person.nationality || '-'}</td>
+                    <td>
+                      <button
+                        onClick={() => setEditingPerson(person)}
+                        className="btn btn-sm btn-secondary"
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDeletePerson(person.id)}
+                        className="btn btn-sm btn-danger"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         ) : (
           <table className="movies-table">
             <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Creation</th>
-              <th>Genre</th>
-              <th>MPAA</th>
-              <th>Oscars</th>
-              <th>Budget</th>
-              <th>Total Box</th>
-              <th>Length</th>
-              <th>Golden Palm</th>
-              <th>Coord</th>
-              <th>Operator</th>
-              <th>Director</th>
-              <th>Screenwriter</th>
-              <th>Actions</th>
-            </tr>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Creation</th>
+                <th>Genre</th>
+                <th>MPAA</th>
+                <th>Oscars</th>
+                <th>Budget</th>
+                <th>Total Box</th>
+                <th>Length</th>
+                <th>Golden Palm</th>
+                <th>Coord</th>
+                <th>Operator</th>
+                <th>Director</th>
+                <th>Screenwriter</th>
+                <th>Actions</th>
+              </tr>
             </thead>
             <tbody>
-            {loading && !isViewingAnalyticsMovies ? (
-              <tr>
-                <td colSpan={14} className="loading">Loading...</td>
-              </tr>
-            ) : movies.length === 0 ? (
-              <tr>
-                <td colSpan={14} className="empty">No movies found</td>
-              </tr>
-            ) : (
-              movies.map((movie) => (
-                <tr key={movie.id}>
-                  <td>{movie.id}</td>
-                  <td>{movie.name}</td>
-                  <td>{movie.creationDate ? new Date(movie.creationDate).toLocaleString() : '-'}</td>
-                  <td>{movie.genre}</td>
-                  <td>{movie.mpaaRating}</td>
-                  <td>{movie.oscarsCount}</td>
-                  <td>${movie.budget?.toLocaleString()}</td>
-                  <td>{movie.totalBoxOffice ? `$${movie.totalBoxOffice.toLocaleString()}` : '-'}</td>
-                  <td>{movie.length ?? '-'}</td>
-                  <td>{movie.goldenPalmCount}</td>
-                  <td>({movie.coordinates?.x}, {movie.coordinates?.y})</td>
-                  <td>{movie.operator?.name || '-'}</td>
-                  <td>{movie.director?.name || '-'}</td>
-                  <td>{movie.screenwriter?.name || '-'}</td>
-                  <td>
-                    <button
-                      onClick={() => setEditingMovie(movie)}
-                      className="btn btn-sm btn-secondary"
-                    >
-                      <Edit size={14} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(movie.id)}
-                      className="btn btn-sm btn-danger"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </td>
+              {loading ? (
+                <tr>
+                  <td colSpan={10} className="loading">Loading...</td>
                 </tr>
-              ))
-            )}
+              ) : movies.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="empty">No movies found</td>
+                </tr>
+              ) : (
+                movies.map((movie) => (
+                  <tr key={movie.id}>
+                    <td>{movie.id}</td>
+                    <td>{movie.name}</td>
+                    <td>{movie.creationDate ? new Date(movie.creationDate).toLocaleString() : '-'}</td>
+                    <td>{movie.genre}</td>
+                    <td>{movie.mpaaRating}</td>
+                    <td>{movie.oscarsCount}</td>
+                    <td>${movie.budget?.toLocaleString()}</td>
+                    <td>{movie.totalBoxOffice ? `$${movie.totalBoxOffice.toLocaleString()}` : '-'}</td>
+                    <td>{movie.length ?? '-'}</td>
+                    <td>{movie.goldenPalmCount}</td>
+                    <td>({movie.coordinates?.x}, {movie.coordinates?.y})</td>
+                    <td>{movie.operator?.name || '-'}</td>
+                    <td>{movie.director?.name || '-'}</td>
+                    <td>{movie.screenwriter?.name || '-'}</td>
+                    <td>
+                      <button
+                        onClick={() => setEditingMovie(movie)}
+                        className="btn btn-sm btn-secondary"
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(movie.id)}
+                        className="btn btn-sm btn-danger"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         )}
-      </div>
+        </div>
+      )}
 
-      {activeTab === 'movies' && !isViewingAnalyticsMovies && (
+      {(activeTab === 'movies' || activeTab === 'persons') && (
         <div className="pagination">
-          <button
-            onClick={() => setPage(Math.max(0, page - 1))}
-            disabled={page === 0}
-            className="btn btn-secondary"
-          >
-            Previous
-          </button>
-          <span>Page {page + 1}</span>
-          <button
-            onClick={() => setPage(page + 1)}
-            disabled={movies.length < size}
-            className="btn btn-secondary"
-          >
-            Next
-          </button>
+        <button
+          onClick={() => setPage(Math.max(0, page - 1))}
+          disabled={page === 0}
+          className="btn btn-secondary"
+        >
+          Previous
+        </button>
+        <span>Page {page + 1}</span>
+        <button
+          onClick={() => setPage(page + 1)}
+          disabled={movies.length < size}
+          className="btn btn-secondary"
+        >
+          Next
+        </button>
         </div>
       )}
 
@@ -611,7 +730,6 @@ function App() {
   );
 }
 
-
 interface MovieDialogProps {
   movie?: Movie | null;
   persons: Person[];
@@ -638,7 +756,7 @@ function MovieDialog({ movie, persons, onSave, onClose }: MovieDialogProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     const movieData: Partial<Movie> = {
       name: formData.name,
       genre: formData.genre as any,
@@ -654,6 +772,7 @@ function MovieDialog({ movie, persons, onSave, onClose }: MovieDialogProps) {
       },
     };
 
+    // Link persons by ID
     if (formData.operatorId) {
       const operator = persons.find(p => p.id === formData.operatorId);
       if (operator) movieData.operator = operator;
@@ -853,7 +972,7 @@ function PersonDialog({ person, onSave, onClose }: PersonDialogProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     const personData: Partial<Person> = {
       name: formData.name,
       eyeColor: formData.eyeColor as any,

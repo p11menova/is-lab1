@@ -1,5 +1,6 @@
 package com.example.models;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 
@@ -7,6 +8,8 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 public class Coordinates {
+    @JacksonXmlProperty
     private long x;
+    @JacksonXmlProperty
     private long y;
 }

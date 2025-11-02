@@ -3,6 +3,7 @@ package com.example.rest;
 import com.example.models.Movie;
 import com.example.realtime.SseBroadcasterService;
 import com.example.repository.MovieRepository;
+import com.example.service.UniqueConstraintService;
 import com.example.validators.MovieValidator;
 import com.example.validators.exceptions.ValidationException;
 import jakarta.inject.Inject;
@@ -18,10 +19,13 @@ public class MoviesResource {
 
     @Inject private MovieRepository movieRepository;
     @Inject private SseBroadcasterService sseService;
+    @Inject private UniqueConstraintService uniqueConstraintService;
 
     @POST
     public Response createMovie(Movie movie) {
         try {
+            MovieValidator.validate(movie);
+            uniqueConstraintService.validateMovieUniqueness(movie);
             Movie newMovie = movieRepository.saveOrUpdate(movie);
             sseService.broadcast("movie-created", String.valueOf(newMovie.getId()));
             return Response.status(Response.Status.CREATED).entity(newMovie).build();
@@ -115,6 +119,9 @@ public class MoviesResource {
                                 if (movieDetails.getOperator() != null) {
                                     existingMovie.setOperator(movieDetails.getOperator());
                                 }
+
+                                // Check uniqueness after all fields are updated
+                                uniqueConstraintService.validateMovieUniqueness(existingMovie);
 
                                 Movie updatedMovie = movieRepository.saveOrUpdate(existingMovie);
 

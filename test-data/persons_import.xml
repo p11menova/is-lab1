@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persons>
+    <person>
+        <name>John Doe</name>
+        <hairColor>BLACK</hairColor>
+        <eyeColor>GREEN</eyeColor>
+        <location>
+            <x>1</x>
+            <y>2.5</y>
+            <z>3.0</z>
+        </location>
+        <birthday>1980-01-15T00:00:00</birthday>
+        <nationality>CHINA</nationality>
+    </person>
+    <person>
+        <name>Jane Smith</name>
+        <hairColor>RED</hairColor>
+        <eyeColor>YELLOW</eyeColor>
+        <location>
+            <x>10</x>
+            <y>20.0</y>
+            <z>30.5</z>
+        </location>
+        <birthday>1985-05-20T00:00:00</birthday>
+        <nationality>VATICAN</nationality>
+    </person>
+    <person>
+        <name>Bob Johnson</name>
+        <hairColor>BLACK</hairColor>
+        <eyeColor>ORANGE</eyeColor>
+        <location>
+            <x>15</x>
+            <y>25.0</y>
+            <z>35.5</z>
+        </location>
+        <birthday>1990-12-10T00:00:00</birthday>
+        <nationality>NORTH_KOREA</nationality>
+    </person>
+    <person>
+        <name>Alice Williams</name>
+        <hairColor>YELLOW</hairColor>
+        <location>
+            <x>20</x>
+            <y>30.0</y>
+            <z>40.0</z>
+        </location>
+        <birthday>1975-08-25T00:00:00</birthday>
+    </person>
+</persons>
+

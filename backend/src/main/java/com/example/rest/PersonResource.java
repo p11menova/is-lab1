@@ -2,6 +2,7 @@ package com.example.rest;
 
 import com.example.models.Person;
 import com.example.repository.PersonRepository;
+import com.example.service.UniqueConstraintService;
 import com.example.validators.PersonValidator;
 import com.example.validators.exceptions.ValidationException;
 import jakarta.inject.Inject;
@@ -15,6 +16,7 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 public class PersonResource {
     @Inject private PersonRepository personRepository;
+    @Inject private UniqueConstraintService uniqueConstraintService;
 
     @GET
     public Response getAllPersons() {
@@ -37,6 +39,7 @@ public class PersonResource {
     public Response createPerson(Person person) {
         try {
             PersonValidator.validate(person);
+            uniqueConstraintService.validatePersonUniqueness(person);
             Person savedPerson = personRepository.saveOrUpdate(person);
             return Response.status(Response.Status.CREATED).entity(savedPerson).build();
         } catch (ValidationException e) {
@@ -61,6 +64,9 @@ public class PersonResource {
                                 existingPerson.setLocation(updatedPerson.getLocation());
                                 existingPerson.setBirthday(updatedPerson.getBirthday());
                                 existingPerson.setNationality(updatedPerson.getNationality());
+
+                                // Check uniqueness if name or birthday changed
+                                uniqueConstraintService.validatePersonUniqueness(existingPerson);
 
                                 Person result = personRepository.saveOrUpdate(existingPerson);
 
