@@ -1,0 +1,50 @@
+<movies>
+    <movie>
+        <name>The Matrix</name>
+        <genre>ACTION</genre>
+        <mpaaRating>PG_13</mpaaRating>
+        <oscarsCount>4</oscarsCount>
+        <budget>63000000.0</budget>
+        <totalBoxOffice>467200000</totalBoxOffice>
+        <length>136</length>
+        <goldenPalmCount>1</goldenPalmCount>
+        <coordinates>
+            <x>100</x>
+            <y>200</y>
+        </coordinates>
+        <operator>
+            <name>Billpe</name>
+            <hairColor>BLACK</hairColor>
+            <eyeColor>BLACK</eyeColor>
+            <location>
+                <x>1</x>
+                <y>2.5</y>
+                <z>3.0</z>
+            </location>
+            <birthday>1957-06-12 00:00:00</birthday>
+            <nationality>CHINA</nationality>
+        </operator>
+        <director>
+            <name>Lanaachowski</name>
+            <hairColor>RED</hairColor>
+            <eyeColor>GREEN</eyeColor>
+            <location>
+                <x>10</x>
+                <y>20.0</y>
+                <z>30.5</z>
+            </location>
+            <birthday>1965-06-22 00:00:00</birthday>
+        </director>
+        <screenwriter>
+            <name>Lillyachowski</name>
+            <hairColor>YELLOW</hairColor>
+            <eyeColor>GREEN</eyeColor>
+            <location>
+                <x>15</x>
+                <y>25.0</y>
+                <z>35.5</z>
+            </location>
+            <birthday>1967-12-19 00:00:00</birthday>
+        </screenwriter>
+    </movie>
+</movies>

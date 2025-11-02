@@ -2,6 +2,7 @@ package com.example.models;
 
 import com.example.models.enums.MovieGenre;
 import com.example.models.enums.MpaaRating;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ public class Movie {
     private String name;
 
     @Column(name = "creation_date", nullable = false)
-    @JsonbDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime creationDate;
 
     @Column(name = "oscars_count", nullable = false)

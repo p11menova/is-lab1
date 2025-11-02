@@ -14,7 +14,7 @@
             <y>200</y>
         </coordinates>
         <operator>
-            <name>Bill Pope</name>
+            <name>Bipe</name>
             <hairColor>BLACK</hairColor>
             <eyeColor>BLACK</eyeColor>
             <location>
@@ -26,7 +26,7 @@
             <nationality>CHINA</nationality>
         </operator>
         <director>
-            <name>Lana Wachowski</name>
+            <name>Lahowski</name>
             <hairColor>RED</hairColor>
             <eyeColor>GREEN</eyeColor>
             <location>
@@ -37,7 +37,7 @@
             <birthday>1965-06-21 00:00:00</birthday>
         </director>
         <screenwriter>
-            <name>Lilly Wachowski</name>
+            <name>Lachowski</name>
             <hairColor>YELLOW</hairColor>
             <eyeColor>GREEN</eyeColor>
             <location>
@@ -63,7 +63,7 @@
         </coordinates>
         <operator>
             <name>Hoyte van Hoytema</name>
-            <hairColor>RED</hairColor>
+            <hairColor>R ED</hairColor>
             <eyeColor>YELLOW</eyeColor>
             <location>
                 <x>8</x>

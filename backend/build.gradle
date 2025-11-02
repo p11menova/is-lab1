@@ -43,6 +43,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.16.1'
     implementation 'com.fasterxml.woodstox:woodstox-core:6.5.1'
 
+
     compileOnly 'org.projectlombok:lombok:1.18.32'
     annotationProcessor 'org.projectlombok:lombok:1.18.32'
 

@@ -9,7 +9,7 @@
             <y>2.5</y>
             <z>3.0</z>
         </location>
-        <birthday>1980-01-15T00:00:00</birthday>
+        <birthday>1980-01-15 00:00:00</birthday>
         <nationality>CHINA</nationality>
     </person>
     <person>
@@ -21,7 +21,7 @@
             <y>20.0</y>
             <z>30.5</z>
         </location>
-        <birthday>1985-05-20T00:00:00</birthday>
+        <birthday>1985-05-20 00:00:00</birthday>
         <nationality>VATICAN</nationality>
     </person>
     <person>
@@ -33,7 +33,7 @@
             <y>25.0</y>
             <z>35.5</z>
         </location>
-        <birthday>1990-12-10T00:00:00</birthday>
+        <birthday>1990-12-10 00:00:00</birthday>
         <nationality>NORTH_KOREA</nationality>
     </person>
     <person>
@@ -44,7 +44,7 @@
             <y>30.0</y>
             <z>40.0</z>
         </location>
-        <birthday>1975-08-25T00:00:00</birthday>
+        <birthday>1975-08-25 00:00:00</birthday>
     </person>
 </persons>
 

@@ -125,9 +125,9 @@ function App() {
 
   const loadImportHistory = async () => {
     try {
-      const url = isAdmin 
-        ? `${API_BASE}/import/history?admin=true`
-        : `${API_BASE}/import/history?username=user`;
+      const url = isAdmin
+          ? `${API_BASE}/import/history?admin=true`
+          : `${API_BASE}/import/history?username=user`;
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to load import history');
       const data = await response.json();
@@ -141,7 +141,7 @@ function App() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const url = `${API_BASE}/import/${type}?filename=${file.name}`;
       const response = await fetch(url, {
         method: 'POST',
@@ -158,7 +158,7 @@ function App() {
       await loadImportHistory();
       if (type === 'movies') await loadMovies();
       else await loadPersons();
-      
+
       setError(null);
       alert(`✅ Import successful! Imported ${result.objectsCount || 0} ${type}`);
     } catch (err) {
@@ -204,18 +204,18 @@ function App() {
     try {
       const url = editingPerson ? `${API_BASE}/persons/${editingPerson.id}` : `${API_BASE}/persons`;
       const method = editingPerson ? 'PUT' : 'POST';
-      
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(personData)
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText);
       }
-      
+
       setShowPersonDialog(false);
       setEditingPerson(null);
       loadPersons();
@@ -228,18 +228,18 @@ function App() {
     try {
       const url = editingMovie ? `${API_BASE}/movies/${editingMovie.id}` : `${API_BASE}/movies`;
       const method = editingMovie ? 'PUT' : 'POST';
-      
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(movieData)
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText);
       }
-      
+
       setShowCreateDialog(false);
       setEditingMovie(null);
       loadMovies();
@@ -270,7 +270,7 @@ function App() {
           url = `${API_BASE}/movies/operators-zero-oscars`;
           break;
       }
-      
+
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch analytics data');
       const data = await response.json();
@@ -283,450 +283,450 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <header className="header">
-        <h1>Movies Management</h1>
-        <div className="header-actions">
-          <button onClick={() => setShowCreateDialog(true)} className="btn btn-primary">
-            <Plus size={16} />
-            Add Movie
-          </button>
-          <button onClick={() => setShowPersonDialog(true)} className="btn btn-primary">
-            <Plus size={16} />
-            Add Person
-          </button>
-          <button 
-            onClick={() => {
-              if (activeTab === 'movies') {
-                loadMovies();
-              } else if (activeTab === 'persons') {
-                loadPersons();
-              } else if (activeTab === 'import') {
-                loadImportHistory();
-              }
-            }} 
-            className="btn btn-secondary"
-          >
-            <RefreshCw size={16} />
-            Refresh
-          </button>
-        </div>
-      </header>
-
-      <div className="tabs">
-        <button 
-          className={`tab ${activeTab === 'movies' ? 'active' : ''}`}
-          onClick={() => setActiveTab('movies')}
-        >
-          Movies
-        </button>
-        <button 
-          className={`tab ${activeTab === 'persons' ? 'active' : ''}`}
-          onClick={() => setActiveTab('persons')}
-        >
-          Persons
-        </button>
-        <button 
-          className={`tab ${activeTab === 'analytics' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('analytics');
-            setAnalyticsData(null);
-          }}
-        >
-          Analytics
-        </button>
-        <button 
-          className={`tab ${activeTab === 'import' ? 'active' : ''}`}
-          onClick={() => setActiveTab('import')}
-        >
-          Import
-        </button>
-      </div>
-
-      {activeTab === 'movies' && (
-        <div className="filters">
-          <div className="filter-group">
-            <input
-              type="text"
-              placeholder="Name"
-              value={filters.name}
-              onChange={(e) => handleFilterChange('name', e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Genre"
-              value={filters.genre}
-              onChange={(e) => handleFilterChange('genre', e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="MPAA"
-              value={filters.mpaa}
-              onChange={(e) => handleFilterChange('mpaa', e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Operator"
-              value={filters.operator}
-              onChange={(e) => handleFilterChange('operator', e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Director"
-              value={filters.director}
-              onChange={(e) => handleFilterChange('director', e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Screenwriter"
-              value={filters.screenwriter}
-              onChange={(e) => handleFilterChange('screenwriter', e.target.value)}
-            />
-          </div>
-          <div className="sort-group">
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-              <option value="creationDate">Creation Date</option>
-              <option value="name">Name</option>
-              <option value="oscarsCount">Oscars</option>
-              <option value="budget">Budget</option>
-            </select>
-            <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}>
-              <option value="desc">Desc</option>
-              <option value="asc">Asc</option>
-            </select>
-            <button onClick={handleApplyFilters} className="btn btn-primary">
-              <Filter size={16} />
-              Apply
+      <div className="app">
+        <header className="header">
+          <h1>Movies Management</h1>
+          <div className="header-actions">
+            <button onClick={() => setShowCreateDialog(true)} className="btn btn-primary">
+              <Plus size={16} />
+              Add Movie
             </button>
-          </div>
-        </div>
-      )}
-
-      {error && (
-        <div className="error" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>{error}</span>
-          <button 
-            onClick={() => setError(null)} 
-            className="btn btn-sm"
-            style={{ padding: '0.25rem 0.5rem', minWidth: 'auto' }}
-          >
-            <X size={14} />
-          </button>
-        </div>
-      )}
-
-      {activeTab === 'analytics' && (
-        <div className="analytics">
-          <div className="analytics-buttons">
-            <button 
-              onClick={() => handleAnalytics('groupByMpaa')}
-              className="btn btn-primary"
-              disabled={analyticsLoading}
-            >
-              Group by MPAA Rating
+            <button onClick={() => setShowPersonDialog(true)} className="btn btn-primary">
+              <Plus size={16} />
+              Add Person
             </button>
-            <button 
-              onClick={() => {
-                const threshold = prompt('Enter genre threshold (ACTION, WESTERN, ADVENTURE, THRILLER, HORROR):');
-                if (threshold) handleAnalytics('countGenreGt', threshold);
-              }}
-              className="btn btn-primary"
-              disabled={analyticsLoading}
-            >
-              Count Genre Greater Than
-            </button>
-            <button 
-              onClick={() => {
-                const threshold = prompt('Enter genre threshold (ACTION, WESTERN, ADVENTURE, THRILLER, HORROR):');
-                if (threshold) handleAnalytics('moviesGenreLt', threshold);
-              }}
-              className="btn btn-primary"
-              disabled={analyticsLoading}
-            >
-              Movies Genre Less Than
-            </button>
-            <button 
-              onClick={() => handleAnalytics('zeroOscars')}
-              className="btn btn-primary"
-              disabled={analyticsLoading}
-            >
-              Movies with Zero Oscars
-            </button>
-            <button 
-              onClick={() => handleAnalytics('operatorsZeroOscars')}
-              className="btn btn-primary"
-              disabled={analyticsLoading}
-            >
-              Operators with Zero Oscars
-            </button>
-          </div>
-          
-          {analyticsLoading && (
-            <div className="loading">Loading analytics...</div>
-          )}
-          
-          {analyticsData && (
-            <div className="analytics-results">
-              <h3>Results:</h3>
-              <pre>{JSON.stringify(analyticsData.data, null, 2)}</pre>
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === 'import' && (
-        <div className="analytics">
-          <h2>Import Data</h2>
-          <div className="import-section">
-            <div className="import-group">
-              <h3>Import Movies</h3>
-              <input
-                type="file"
-                accept=".xml"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleFileImport(file, 'movies');
+            <button
+                onClick={() => {
+                  if (activeTab === 'movies') {
+                    loadMovies();
+                  } else if (activeTab === 'persons') {
+                    loadPersons();
+                  } else if (activeTab === 'import') {
+                    loadImportHistory();
+                  }
                 }}
-                id="movies-file-input"
-                style={{ display: 'none' }}
-              />
-              <label htmlFor="movies-file-input" className="btn btn-primary">
-                Choose Movies XML File
-              </label>
-            </div>
-            <div className="import-group">
-              <h3>Import Persons</h3>
-              <input
-                type="file"
-                accept=".xml"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleFileImport(file, 'persons');
-                }}
-                id="persons-file-input"
-                style={{ display: 'none' }}
-              />
-              <label htmlFor="persons-file-input" className="btn btn-primary">
-                Choose Persons XML File
-              </label>
-            </div>
+                className="btn btn-secondary"
+            >
+              <RefreshCw size={16} />
+              Refresh
+            </button>
           </div>
-          
-          <div className="import-history">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3>Import History</h3>
-              <button onClick={loadImportHistory} className="btn btn-secondary">
-                <RefreshCw size={16} />
-                Refresh
+        </header>
+
+        <div className="tabs">
+          <button
+              className={`tab ${activeTab === 'movies' ? 'active' : ''}`}
+              onClick={() => setActiveTab('movies')}
+          >
+            Movies
+          </button>
+          <button
+              className={`tab ${activeTab === 'persons' ? 'active' : ''}`}
+              onClick={() => setActiveTab('persons')}
+          >
+            Persons
+          </button>
+          <button
+              className={`tab ${activeTab === 'analytics' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveTab('analytics');
+                setAnalyticsData(null);
+              }}
+          >
+            Analytics
+          </button>
+          <button
+              className={`tab ${activeTab === 'import' ? 'active' : ''}`}
+              onClick={() => setActiveTab('import')}
+          >
+            Import
+          </button>
+        </div>
+
+        {activeTab === 'movies' && (
+            <div className="filters">
+              <div className="filter-group">
+                <input
+                    type="text"
+                    placeholder="Name"
+                    value={filters.name}
+                    onChange={(e) => handleFilterChange('name', e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Genre"
+                    value={filters.genre}
+                    onChange={(e) => handleFilterChange('genre', e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="MPAA"
+                    value={filters.mpaa}
+                    onChange={(e) => handleFilterChange('mpaa', e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Operator"
+                    value={filters.operator}
+                    onChange={(e) => handleFilterChange('operator', e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Director"
+                    value={filters.director}
+                    onChange={(e) => handleFilterChange('director', e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Screenwriter"
+                    value={filters.screenwriter}
+                    onChange={(e) => handleFilterChange('screenwriter', e.target.value)}
+                />
+              </div>
+              <div className="sort-group">
+                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                  <option value="creationDate">Creation Date</option>
+                  <option value="name">Name</option>
+                  <option value="oscarsCount">Oscars</option>
+                  <option value="budget">Budget</option>
+                </select>
+                <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}>
+                  <option value="desc">Desc</option>
+                  <option value="asc">Asc</option>
+                </select>
+                <button onClick={handleApplyFilters} className="btn btn-primary">
+                  <Filter size={16} />
+                  Apply
+                </button>
+              </div>
+            </div>
+        )}
+
+        {error && (
+            <div className="error" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>{error}</span>
+              <button
+                  onClick={() => setError(null)}
+                  className="btn btn-sm"
+                  style={{ padding: '0.25rem 0.5rem', minWidth: 'auto' }}
+              >
+                <X size={14} />
               </button>
             </div>
-            <table className="movies-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Username</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Objects Count</th>
-                  <th>File Name</th>
-                  <th>Error</th>
-                </tr>
-              </thead>
-              <tbody>
-                {importHistory.length === 0 ? (
+        )}
+
+        {activeTab === 'analytics' && (
+            <div className="analytics">
+              <div className="analytics-buttons">
+                <button
+                    onClick={() => handleAnalytics('groupByMpaa')}
+                    className="btn btn-primary"
+                    disabled={analyticsLoading}
+                >
+                  Group by MPAA Rating
+                </button>
+                <button
+                    onClick={() => {
+                      const threshold = prompt('Enter genre threshold (ACTION, WESTERN, ADVENTURE, THRILLER, HORROR):');
+                      if (threshold) handleAnalytics('countGenreGt', threshold);
+                    }}
+                    className="btn btn-primary"
+                    disabled={analyticsLoading}
+                >
+                  Count Genre Greater Than
+                </button>
+                <button
+                    onClick={() => {
+                      const threshold = prompt('Enter genre threshold (ACTION, WESTERN, ADVENTURE, THRILLER, HORROR):');
+                      if (threshold) handleAnalytics('moviesGenreLt', threshold);
+                    }}
+                    className="btn btn-primary"
+                    disabled={analyticsLoading}
+                >
+                  Movies Genre Less Than
+                </button>
+                <button
+                    onClick={() => handleAnalytics('zeroOscars')}
+                    className="btn btn-primary"
+                    disabled={analyticsLoading}
+                >
+                  Movies with Zero Oscars
+                </button>
+                <button
+                    onClick={() => handleAnalytics('operatorsZeroOscars')}
+                    className="btn btn-primary"
+                    disabled={analyticsLoading}
+                >
+                  Operators with Zero Oscars
+                </button>
+              </div>
+
+              {analyticsLoading && (
+                  <div className="loading">Loading analytics...</div>
+              )}
+
+              {analyticsData && (
+                  <div className="analytics-results">
+                    <h3>Results:</h3>
+                    <pre>{JSON.stringify(analyticsData.data, null, 2)}</pre>
+                  </div>
+              )}
+            </div>
+        )}
+
+        {activeTab === 'import' && (
+            <div className="analytics">
+              <h2>Import Data</h2>
+              <div className="import-section">
+                <div className="import-group">
+                  <h3>Import Movies</h3>
+                  <input
+                      type="file"
+                      accept=".xml"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileImport(file, 'movies');
+                      }}
+                      id="movies-file-input"
+                      style={{ display: 'none' }}
+                  />
+                  <label htmlFor="movies-file-input" className="btn btn-primary">
+                    Choose Movies XML File
+                  </label>
+                </div>
+                <div className="import-group">
+                  <h3>Import Persons</h3>
+                  <input
+                      type="file"
+                      accept=".xml"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileImport(file, 'persons');
+                      }}
+                      id="persons-file-input"
+                      style={{ display: 'none' }}
+                  />
+                  <label htmlFor="persons-file-input" className="btn btn-primary">
+                    Choose Persons XML File
+                  </label>
+                </div>
+              </div>
+
+              <div className="import-history">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h3>Import History</h3>
+                  <button onClick={loadImportHistory} className="btn btn-secondary">
+                    <RefreshCw size={16} />
+                    Refresh
+                  </button>
+                </div>
+                <table className="movies-table">
+                  <thead>
                   <tr>
-                    <td colSpan={7} className="empty">No import history</td>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Objects Count</th>
+                    <th>File Name</th>
+                    <th>Error</th>
                   </tr>
-                ) : (
-                  importHistory.map((item) => (
-                    <tr key={item.id}>
-                      <td>{item.id}</td>
-                      <td>{item.username}</td>
-                      <td>{item.importDate ? new Date(item.importDate).toLocaleString() : '-'}</td>
-                      <td>
+                  </thead>
+                  <tbody>
+                  {importHistory.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="empty">No import history</td>
+                      </tr>
+                  ) : (
+                      importHistory.map((item) => (
+                          <tr key={item.id}>
+                            <td>{item.id}</td>
+                            <td>{item.username}</td>
+                            <td>{item.importDate ? new Date(item.importDate).toLocaleString() : '-'}</td>
+                            <td>
                         <span className={`status-badge ${item.status?.toLowerCase()}`}>
                           {item.status}
                         </span>
-                      </td>
-                      <td>{item.objectsCount ?? '-'}</td>
-                      <td>{item.fileName || '-'}</td>
-                      <td>{item.errorMessage ? <span className="error-text" title={item.errorMessage}>{item.errorMessage}</span> : '-'}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {(activeTab === 'movies' || activeTab === 'persons') && (
-        <div className="table-container">
-          {activeTab === 'persons' ? (
-          <table className="movies-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Eye Color</th>
-                <th>Hair Color</th>
-                <th>Location</th>
-                <th>Birthday</th>
-                <th>Nationality</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={8} className="loading">Loading...</td>
-                </tr>
-              ) : persons.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="empty">No persons found</td>
-                </tr>
-              ) : (
-                persons.map((person) => (
-                  <tr key={person.id}>
-                    <td>{person.id}</td>
-                    <td>{person.name}</td>
-                    <td>{person.eyeColor || '-'}</td>
-                    <td>{person.hairColor}</td>
-                    <td>({person.location.x}, {person.location.y}, {person.location.z})</td>
-                    <td>{person.birthday ? new Date(person.birthday).toLocaleDateString() : '-'}</td>
-                    <td>{person.nationality || '-'}</td>
-                    <td>
-                      <button
-                        onClick={() => setEditingPerson(person)}
-                        className="btn btn-sm btn-secondary"
-                      >
-                        <Edit size={14} />
-                      </button>
-                      <button
-                        onClick={() => handleDeletePerson(person.id)}
-                        className="btn btn-sm btn-danger"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        ) : (
-          <table className="movies-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Creation</th>
-                <th>Genre</th>
-                <th>MPAA</th>
-                <th>Oscars</th>
-                <th>Budget</th>
-                <th>Total Box</th>
-                <th>Length</th>
-                <th>Golden Palm</th>
-                <th>Coord</th>
-                <th>Operator</th>
-                <th>Director</th>
-                <th>Screenwriter</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={10} className="loading">Loading...</td>
-                </tr>
-              ) : movies.length === 0 ? (
-                <tr>
-                  <td colSpan={10} className="empty">No movies found</td>
-                </tr>
-              ) : (
-                movies.map((movie) => (
-                  <tr key={movie.id}>
-                    <td>{movie.id}</td>
-                    <td>{movie.name}</td>
-                    <td>{movie.creationDate ? new Date(movie.creationDate).toLocaleString() : '-'}</td>
-                    <td>{movie.genre}</td>
-                    <td>{movie.mpaaRating}</td>
-                    <td>{movie.oscarsCount}</td>
-                    <td>${movie.budget?.toLocaleString()}</td>
-                    <td>{movie.totalBoxOffice ? `$${movie.totalBoxOffice.toLocaleString()}` : '-'}</td>
-                    <td>{movie.length ?? '-'}</td>
-                    <td>{movie.goldenPalmCount}</td>
-                    <td>({movie.coordinates?.x}, {movie.coordinates?.y})</td>
-                    <td>{movie.operator?.name || '-'}</td>
-                    <td>{movie.director?.name || '-'}</td>
-                    <td>{movie.screenwriter?.name || '-'}</td>
-                    <td>
-                      <button
-                        onClick={() => setEditingMovie(movie)}
-                        className="btn btn-sm btn-secondary"
-                      >
-                        <Edit size={14} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(movie.id)}
-                        className="btn btn-sm btn-danger"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                            </td>
+                            <td>{item.objectsCount ?? '-'}</td>
+                            <td>{item.fileName || '-'}</td>
+                            <td>{item.errorMessage ? <span className="error-text" title={item.errorMessage}>{item.errorMessage}</span> : '-'}</td>
+                          </tr>
+                      ))
+                  )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
         )}
-        </div>
-      )}
 
-      {(activeTab === 'movies' || activeTab === 'persons') && (
-        <div className="pagination">
-        <button
-          onClick={() => setPage(Math.max(0, page - 1))}
-          disabled={page === 0}
-          className="btn btn-secondary"
-        >
-          Previous
-        </button>
-        <span>Page {page + 1}</span>
-        <button
-          onClick={() => setPage(page + 1)}
-          disabled={movies.length < size}
-          className="btn btn-secondary"
-        >
-          Next
-        </button>
-        </div>
-      )}
+        {(activeTab === 'movies' || activeTab === 'persons') && (
+            <div className="table-container">
+              {activeTab === 'persons' ? (
+                  <table className="movies-table">
+                    <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Eye Color</th>
+                      <th>Hair Color</th>
+                      <th>Location</th>
+                      <th>Birthday</th>
+                      <th>Nationality</th>
+                      <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {loading ? (
+                        <tr>
+                          <td colSpan={8} className="loading">Loading...</td>
+                        </tr>
+                    ) : persons.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="empty">No persons found</td>
+                        </tr>
+                    ) : (
+                        persons.map((person) => (
+                            <tr key={person.id}>
+                              <td>{person.id}</td>
+                              <td>{person.name}</td>
+                              <td>{person.eyeColor || '-'}</td>
+                              <td>{person.hairColor}</td>
+                              <td>({person.location.x}, {person.location.y}, {person.location.z})</td>
+                              <td>{person.birthday ? new Date(person.birthday).toLocaleDateString() : '-'}</td>
+                              <td>{person.nationality || '-'}</td>
+                              <td>
+                                <button
+                                    onClick={() => setEditingPerson(person)}
+                                    className="btn btn-sm btn-secondary"
+                                >
+                                  <Edit size={14} />
+                                </button>
+                                <button
+                                    onClick={() => handleDeletePerson(person.id)}
+                                    className="btn btn-sm btn-danger"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </td>
+                            </tr>
+                        ))
+                    )}
+                    </tbody>
+                  </table>
+              ) : (
+                  <table className="movies-table">
+                    <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Creation</th>
+                      <th>Genre</th>
+                      <th>MPAA</th>
+                      <th>Oscars</th>
+                      <th>Budget</th>
+                      <th>Total Box</th>
+                      <th>Length</th>
+                      <th>Golden Palm</th>
+                      <th>Coord</th>
+                      <th>Operator</th>
+                      <th>Director</th>
+                      <th>Screenwriter</th>
+                      <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {loading ? (
+                        <tr>
+                          <td colSpan={10} className="loading">Loading...</td>
+                        </tr>
+                    ) : movies.length === 0 ? (
+                        <tr>
+                          <td colSpan={10} className="empty">No movies found</td>
+                        </tr>
+                    ) : (
+                        movies.map((movie) => (
+                            <tr key={movie.id}>
+                              <td>{movie.id}</td>
+                              <td>{movie.name}</td>
+                              <td>{movie.creationDate ? new Date(movie.creationDate).toLocaleString() : '-'}</td>
+                              <td>{movie.genre}</td>
+                              <td>{movie.mpaaRating}</td>
+                              <td>{movie.oscarsCount}</td>
+                              <td>${movie.budget?.toLocaleString()}</td>
+                              <td>{movie.totalBoxOffice ? `$${movie.totalBoxOffice.toLocaleString()}` : '-'}</td>
+                              <td>{movie.length ?? '-'}</td>
+                              <td>{movie.goldenPalmCount}</td>
+                              <td>({movie.coordinates?.x}, {movie.coordinates?.y})</td>
+                              <td>{movie.operator?.name || '-'}</td>
+                              <td>{movie.director?.name || '-'}</td>
+                              <td>{movie.screenwriter?.name || '-'}</td>
+                              <td>
+                                <button
+                                    onClick={() => setEditingMovie(movie)}
+                                    className="btn btn-sm btn-secondary"
+                                >
+                                  <Edit size={14} />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(movie.id)}
+                                    className="btn btn-sm btn-danger"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </td>
+                            </tr>
+                        ))
+                    )}
+                    </tbody>
+                  </table>
+              )}
+            </div>
+        )}
 
-      {(showCreateDialog || editingMovie) && (
-        <MovieDialog
-          movie={editingMovie}
-          persons={persons}
-          onSave={handleSave}
-          onClose={() => {
-            setShowCreateDialog(false);
-            setEditingMovie(null);
-          }}
-        />
-      )}
+        {(activeTab === 'movies' || activeTab === 'persons') && (
+            <div className="pagination">
+              <button
+                  onClick={() => setPage(Math.max(0, page - 1))}
+                  disabled={page === 0}
+                  className="btn btn-secondary"
+              >
+                Previous
+              </button>
+              <span>Page {page + 1}</span>
+              <button
+                  onClick={() => setPage(page + 1)}
+                  disabled={movies.length < size}
+                  className="btn btn-secondary"
+              >
+                Next
+              </button>
+            </div>
+        )}
 
-      {(showPersonDialog || editingPerson) && (
-        <PersonDialog
-          person={editingPerson}
-          onSave={handleSavePerson}
-          onClose={() => {
-            setShowPersonDialog(false);
-            setEditingPerson(null);
-          }}
-        />
-      )}
-    </div>
+        {(showCreateDialog || editingMovie) && (
+            <MovieDialog
+                movie={editingMovie}
+                persons={persons}
+                onSave={handleSave}
+                onClose={() => {
+                  setShowCreateDialog(false);
+                  setEditingMovie(null);
+                }}
+            />
+        )}
+
+        {(showPersonDialog || editingPerson) && (
+            <PersonDialog
+                person={editingPerson}
+                onSave={handleSavePerson}
+                onClose={() => {
+                  setShowPersonDialog(false);
+                  setEditingPerson(null);
+                }}
+            />
+        )}
+      </div>
   );
 }
 
@@ -756,7 +756,7 @@ function MovieDialog({ movie, persons, onSave, onClose }: MovieDialogProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const movieData: Partial<Movie> = {
       name: formData.name,
       genre: formData.genre as any,
@@ -790,165 +790,165 @@ function MovieDialog({ movie, persons, onSave, onClose }: MovieDialogProps) {
   };
 
   return (
-    <div className="dialog-overlay">
-      <div className="dialog">
-        <h2>{movie ? 'Edit Movie' : 'Create Movie'}</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-grid">
-            <div>
-              <label>Name *</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                required
-              />
+      <div className="dialog-overlay">
+        <div className="dialog">
+          <h2>{movie ? 'Edit Movie' : 'Create Movie'}</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-grid">
+              <div>
+                <label>Name *</label>
+                <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    required
+                />
+              </div>
+              <div>
+                <label>Genre *</label>
+                <select
+                    value={formData.genre}
+                    onChange={(e) => setFormData(prev => ({ ...prev, genre: e.target.value }))}
+                    required
+                >
+                  <option value="">Select Genre</option>
+                  <option value="ACTION">ACTION</option>
+                  <option value="WESTERN">WESTERN</option>
+                  <option value="ADVENTURE">ADVENTURE</option>
+                  <option value="THRILLER">THRILLER</option>
+                  <option value="HORROR">HORROR</option>
+                </select>
+              </div>
+              <div>
+                <label>MPAA Rating *</label>
+                <select
+                    value={formData.mpaaRating}
+                    onChange={(e) => setFormData(prev => ({ ...prev, mpaaRating: e.target.value }))}
+                    required
+                >
+                  <option value="">Select MPAA</option>
+                  <option value="G">G</option>
+                  <option value="PG">PG</option>
+                  <option value="PG_13">PG-13</option>
+                  <option value="NC_17">NC-17</option>
+                </select>
+              </div>
+              <div>
+                <label>Oscars Count *</label>
+                <input
+                    type="number"
+                    min="1"
+                    value={formData.oscarsCount}
+                    onChange={(e) => setFormData(prev => ({ ...prev, oscarsCount: parseInt(e.target.value) }))}
+                    required
+                />
+              </div>
+              <div>
+                <label>Budget *</label>
+                <input
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    value={formData.budget}
+                    onChange={(e) => setFormData(prev => ({ ...prev, budget: parseFloat(e.target.value) }))}
+                    required
+                />
+              </div>
+              <div>
+                <label>Total Box Office</label>
+                <input
+                    type="number"
+                    min="1"
+                    value={formData.totalBoxOffice}
+                    onChange={(e) => setFormData(prev => ({ ...prev, totalBoxOffice: parseInt(e.target.value) }))}
+                />
+              </div>
+              <div>
+                <label>Length</label>
+                <input
+                    type="number"
+                    min="1"
+                    value={formData.length}
+                    onChange={(e) => setFormData(prev => ({ ...prev, length: parseInt(e.target.value) }))}
+                />
+              </div>
+              <div>
+                <label>Golden Palm Count *</label>
+                <input
+                    type="number"
+                    min="1"
+                    value={formData.goldenPalmCount}
+                    onChange={(e) => setFormData(prev => ({ ...prev, goldenPalmCount: parseInt(e.target.value) }))}
+                    required
+                />
+              </div>
+              <div>
+                <label>Coordinates X *</label>
+                <input
+                    type="number"
+                    value={formData.coordX}
+                    onChange={(e) => setFormData(prev => ({ ...prev, coordX: parseInt(e.target.value) }))}
+                    required
+                />
+              </div>
+              <div>
+                <label>Coordinates Y *</label>
+                <input
+                    type="number"
+                    value={formData.coordY}
+                    onChange={(e) => setFormData(prev => ({ ...prev, coordY: parseInt(e.target.value) }))}
+                    required
+                />
+              </div>
+              <div>
+                <label>Operator *</label>
+                <select
+                    value={formData.operatorId}
+                    onChange={(e) => setFormData(prev => ({ ...prev, operatorId: parseInt(e.target.value) }))}
+                    required
+                >
+                  <option value="">Select Operator</option>
+                  {persons.map(person => (
+                      <option key={person.id} value={person.id}>{person.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label>Director</label>
+                <select
+                    value={formData.directorId}
+                    onChange={(e) => setFormData(prev => ({ ...prev, directorId: parseInt(e.target.value) }))}
+                >
+                  <option value="">Select Director</option>
+                  {persons.map(person => (
+                      <option key={person.id} value={person.id}>{person.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label>Screenwriter</label>
+                <select
+                    value={formData.screenwriterId}
+                    onChange={(e) => setFormData(prev => ({ ...prev, screenwriterId: parseInt(e.target.value) }))}
+                >
+                  <option value="">Select Screenwriter</option>
+                  {persons.map(person => (
+                      <option key={person.id} value={person.id}>{person.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div>
-              <label>Genre *</label>
-              <select
-                value={formData.genre}
-                onChange={(e) => setFormData(prev => ({ ...prev, genre: e.target.value }))}
-                required
-              >
-                <option value="">Select Genre</option>
-                <option value="ACTION">ACTION</option>
-                <option value="WESTERN">WESTERN</option>
-                <option value="ADVENTURE">ADVENTURE</option>
-                <option value="THRILLER">THRILLER</option>
-                <option value="HORROR">HORROR</option>
-              </select>
+            <div className="dialog-actions">
+              <button type="button" onClick={onClose} className="btn btn-secondary">
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary">
+                {movie ? 'Update' : 'Create'}
+              </button>
             </div>
-            <div>
-              <label>MPAA Rating *</label>
-              <select
-                value={formData.mpaaRating}
-                onChange={(e) => setFormData(prev => ({ ...prev, mpaaRating: e.target.value }))}
-                required
-              >
-                <option value="">Select MPAA</option>
-                <option value="G">G</option>
-                <option value="PG">PG</option>
-                <option value="PG_13">PG-13</option>
-                <option value="NC_17">NC-17</option>
-              </select>
-            </div>
-            <div>
-              <label>Oscars Count *</label>
-              <input
-                type="number"
-                min="1"
-                value={formData.oscarsCount}
-                onChange={(e) => setFormData(prev => ({ ...prev, oscarsCount: parseInt(e.target.value) }))}
-                required
-              />
-            </div>
-            <div>
-              <label>Budget *</label>
-              <input
-                type="number"
-                min="0.01"
-                step="0.01"
-                value={formData.budget}
-                onChange={(e) => setFormData(prev => ({ ...prev, budget: parseFloat(e.target.value) }))}
-                required
-              />
-            </div>
-            <div>
-              <label>Total Box Office</label>
-              <input
-                type="number"
-                min="1"
-                value={formData.totalBoxOffice}
-                onChange={(e) => setFormData(prev => ({ ...prev, totalBoxOffice: parseInt(e.target.value) }))}
-              />
-            </div>
-            <div>
-              <label>Length</label>
-              <input
-                type="number"
-                min="1"
-                value={formData.length}
-                onChange={(e) => setFormData(prev => ({ ...prev, length: parseInt(e.target.value) }))}
-              />
-            </div>
-            <div>
-              <label>Golden Palm Count *</label>
-              <input
-                type="number"
-                min="1"
-                value={formData.goldenPalmCount}
-                onChange={(e) => setFormData(prev => ({ ...prev, goldenPalmCount: parseInt(e.target.value) }))}
-                required
-              />
-            </div>
-            <div>
-              <label>Coordinates X *</label>
-              <input
-                type="number"
-                value={formData.coordX}
-                onChange={(e) => setFormData(prev => ({ ...prev, coordX: parseInt(e.target.value) }))}
-                required
-              />
-            </div>
-            <div>
-              <label>Coordinates Y *</label>
-              <input
-                type="number"
-                value={formData.coordY}
-                onChange={(e) => setFormData(prev => ({ ...prev, coordY: parseInt(e.target.value) }))}
-                required
-              />
-            </div>
-            <div>
-              <label>Operator *</label>
-              <select
-                value={formData.operatorId}
-                onChange={(e) => setFormData(prev => ({ ...prev, operatorId: parseInt(e.target.value) }))}
-                required
-              >
-                <option value="">Select Operator</option>
-                {persons.map(person => (
-                  <option key={person.id} value={person.id}>{person.name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label>Director</label>
-              <select
-                value={formData.directorId}
-                onChange={(e) => setFormData(prev => ({ ...prev, directorId: parseInt(e.target.value) }))}
-              >
-                <option value="">Select Director</option>
-                {persons.map(person => (
-                  <option key={person.id} value={person.id}>{person.name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label>Screenwriter</label>
-              <select
-                value={formData.screenwriterId}
-                onChange={(e) => setFormData(prev => ({ ...prev, screenwriterId: parseInt(e.target.value) }))}
-              >
-                <option value="">Select Screenwriter</option>
-                {persons.map(person => (
-                  <option key={person.id} value={person.id}>{person.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className="dialog-actions">
-            <button type="button" onClick={onClose} className="btn btn-secondary">
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary">
-              {movie ? 'Update' : 'Create'}
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
-    </div>
   );
 }
 
@@ -972,7 +972,7 @@ function PersonDialog({ person, onSave, onClose }: PersonDialogProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const personData: Partial<Person> = {
       name: formData.name,
       eyeColor: formData.eyeColor as any,
@@ -982,7 +982,7 @@ function PersonDialog({ person, onSave, onClose }: PersonDialogProps) {
         y: formData.locY,
         z: formData.locZ,
       },
-      birthday: formData.birthday ? new Date(formData.birthday).toISOString().split('T')[0] + 'T00:00:00' : undefined,
+      birthday: formData.birthday ? new Date(formData.birthday).toISOString().split('T')[0] + ' 00:00:00' : undefined,
       nationality: formData.nationality as any,
     };
 
@@ -990,108 +990,108 @@ function PersonDialog({ person, onSave, onClose }: PersonDialogProps) {
   };
 
   return (
-    <div className="dialog-overlay">
-      <div className="dialog">
-        <h2>{person ? 'Edit Person' : 'Create Person'}</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-grid">
-            <div>
-              <label>Name *</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                required
-              />
+      <div className="dialog-overlay">
+        <div className="dialog">
+          <h2>{person ? 'Edit Person' : 'Create Person'}</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-grid">
+              <div>
+                <label>Name *</label>
+                <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    required
+                />
+              </div>
+              <div>
+                <label>Eye Color</label>
+                <select
+                    value={formData.eyeColor}
+                    onChange={(e) => setFormData(prev => ({ ...prev, eyeColor: e.target.value }))}
+                >
+                  <option value="">Select Eye Color</option>
+                  <option value="GREEN">GREEN</option>
+                  <option value="RED">RED</option>
+                  <option value="BLACK">BLACK</option>
+                  <option value="YELLOW">YELLOW</option>
+                  <option value="ORANGE">ORANGE</option>
+                </select>
+              </div>
+              <div>
+                <label>Hair Color *</label>
+                <select
+                    value={formData.hairColor}
+                    onChange={(e) => setFormData(prev => ({ ...prev, hairColor: e.target.value }))}
+                    required
+                >
+                  <option value="">Select Hair Color</option>
+                  <option value="GREEN">GREEN</option>
+                  <option value="RED">RED</option>
+                  <option value="BLACK">BLACK</option>
+                  <option value="YELLOW">YELLOW</option>
+                  <option value="ORANGE">ORANGE</option>
+                </select>
+              </div>
+              <div>
+                <label>Location X *</label>
+                <input
+                    type="number"
+                    value={formData.locX}
+                    onChange={(e) => setFormData(prev => ({ ...prev, locX: parseInt(e.target.value) }))}
+                    required
+                />
+              </div>
+              <div>
+                <label>Location Y *</label>
+                <input
+                    type="number"
+                    value={formData.locY}
+                    onChange={(e) => setFormData(prev => ({ ...prev, locY: parseFloat(e.target.value) }))}
+                    required
+                />
+              </div>
+              <div>
+                <label>Location Z *</label>
+                <input
+                    type="number"
+                    value={formData.locZ}
+                    onChange={(e) => setFormData(prev => ({ ...prev, locZ: parseFloat(e.target.value) }))}
+                    required
+                />
+              </div>
+              <div>
+                <label>Birthday</label>
+                <input
+                    type="date"
+                    value={formData.birthday}
+                    onChange={(e) => setFormData(prev => ({ ...prev, birthday: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label>Nationality</label>
+                <select
+                    value={formData.nationality}
+                    onChange={(e) => setFormData(prev => ({ ...prev, nationality: e.target.value }))}
+                >
+                  <option value="">Select Nationality</option>
+                  <option value="CHINA">CHINA</option>
+                  <option value="VATICAN">VATICAN</option>
+                  <option value="NORTH_KOREA">NORTH_KOREA</option>
+                </select>
+              </div>
             </div>
-            <div>
-              <label>Eye Color</label>
-              <select
-                value={formData.eyeColor}
-                onChange={(e) => setFormData(prev => ({ ...prev, eyeColor: e.target.value }))}
-              >
-                <option value="">Select Eye Color</option>
-                <option value="GREEN">GREEN</option>
-                <option value="RED">RED</option>
-                <option value="BLACK">BLACK</option>
-                <option value="YELLOW">YELLOW</option>
-                <option value="ORANGE">ORANGE</option>
-              </select>
+            <div className="dialog-actions">
+              <button type="button" onClick={onClose} className="btn btn-secondary">
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary">
+                {person ? 'Update' : 'Create'}
+              </button>
             </div>
-            <div>
-              <label>Hair Color *</label>
-              <select
-                value={formData.hairColor}
-                onChange={(e) => setFormData(prev => ({ ...prev, hairColor: e.target.value }))}
-                required
-              >
-                <option value="">Select Hair Color</option>
-                <option value="GREEN">GREEN</option>
-                <option value="RED">RED</option>
-                <option value="BLACK">BLACK</option>
-                <option value="YELLOW">YELLOW</option>
-                <option value="ORANGE">ORANGE</option>
-              </select>
-            </div>
-            <div>
-              <label>Location X *</label>
-              <input
-                type="number"
-                value={formData.locX}
-                onChange={(e) => setFormData(prev => ({ ...prev, locX: parseInt(e.target.value) }))}
-                required
-              />
-            </div>
-            <div>
-              <label>Location Y *</label>
-              <input
-                type="number"
-                value={formData.locY}
-                onChange={(e) => setFormData(prev => ({ ...prev, locY: parseFloat(e.target.value) }))}
-                required
-              />
-            </div>
-            <div>
-              <label>Location Z *</label>
-              <input
-                type="number"
-                value={formData.locZ}
-                onChange={(e) => setFormData(prev => ({ ...prev, locZ: parseFloat(e.target.value) }))}
-                required
-              />
-            </div>
-            <div>
-              <label>Birthday</label>
-              <input
-                type="date"
-                value={formData.birthday}
-                onChange={(e) => setFormData(prev => ({ ...prev, birthday: e.target.value }))}
-              />
-            </div>
-            <div>
-              <label>Nationality</label>
-              <select
-                value={formData.nationality}
-                onChange={(e) => setFormData(prev => ({ ...prev, nationality: e.target.value }))}
-              >
-                <option value="">Select Nationality</option>
-                <option value="CHINA">CHINA</option>
-                <option value="VATICAN">VATICAN</option>
-                <option value="NORTH_KOREA">NORTH_KOREA</option>
-              </select>
-            </div>
-          </div>
-          <div className="dialog-actions">
-            <button type="button" onClick={onClose} className="btn btn-secondary">
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary">
-              {person ? 'Update' : 'Create'}
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
-    </div>
   );
 }
 

@@ -40,7 +40,7 @@ public class ImportService {
         this.xmlMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
     }
 
-    @Transactional(value = TxType.REQUIRED, rollbackOn = Exception.class)
+    @Transactional(value = TxType.REQUIRED)
     public ImportHistory importMoviesFromXml(InputStream inputStream, String username, String fileName) {
         ImportHistory importHistory = new ImportHistory();
         importHistory.setUsername(username);
@@ -52,7 +52,7 @@ public class ImportService {
             // Parse XML to list of movies
             MoviesWrapper wrapper = xmlMapper.readValue(inputStream, MoviesWrapper.class);
             List<Movie> movies = wrapper.getMovies() != null ? wrapper.getMovies() : new ArrayList<>();
-            
+
             List<Movie> validMovies = new ArrayList<>();
             int importedCount = 0;
 
@@ -60,7 +60,7 @@ public class ImportService {
             for (Movie movie : movies) {
                 try {
                     MovieValidator.validate(movie);
-                    
+
                     // Ensure related persons exist or create them first
                     if (movie.getOperator() != null && movie.getOperator().getId() == null) {
                         PersonValidator.validate(movie.getOperator());
@@ -100,18 +100,34 @@ public class ImportService {
             return importHistory;
         } catch (Exception e) {
             try {
+                // Устанавливаем статус FAILED
                 importHistory.setStatus(ImportHistory.ImportStatus.FAILED);
-                importHistory.setErrorMessage(e.getMessage() != null ? e.getMessage().substring(0, Math.min(2000, e.getMessage().length())) : "Unknown error");
+
+                // Сохраняем сообщение об ошибке (с безопасной обрезкой)
+                String errorMsg = e.getMessage();
+                if (errorMsg == null || errorMsg.isEmpty()) {
+                    errorMsg = "Unknown error occurred during import.";
+                } else {
+                    // Безопасная обрезка до 2000 символов (учитывает Unicode)
+                    errorMsg = errorMsg.length() > 2000 ? errorMsg.substring(0, 2000) : errorMsg;
+                }
+                importHistory.setErrorMessage(errorMsg);
+                System.out.println("Import failed: " + errorMsg);
+                System.out.println("сохраняем историю импорта с ошибкой. " + importHistory);
                 importHistoryRepository.save(importHistory);
             } catch (Exception saveError) {
-                // Ignore save error, log if needed
+                // Логируем ошибку сохранения истории импорта
                 System.err.println("Failed to save import history: " + saveError.getMessage());
+                saveError.printStackTrace();
             }
+
+            // Перевыбрасываем исключение с контекстом
             throw new RuntimeException("Import failed: " + e.getMessage(), e);
         }
     }
 
-    @Transactional(value = TxType.REQUIRED, rollbackOn = Exception.class)
+
+    @Transactional(value = TxType.REQUIRED)
     public ImportHistory importPersonsFromXml(InputStream inputStream, String username, String fileName) {
         ImportHistory importHistory = new ImportHistory();
         importHistory.setUsername(username);
@@ -123,7 +139,7 @@ public class ImportService {
             // Parse XML to list of persons
             PersonsWrapper wrapper = xmlMapper.readValue(inputStream, PersonsWrapper.class);
             List<Person> persons = wrapper.getPersons() != null ? wrapper.getPersons() : new ArrayList<>();
-            
+
             int importedCount = 0;
 
             // Validate all persons first
@@ -150,14 +166,29 @@ public class ImportService {
         } catch (Exception e) {
             try {
                 importHistory.setStatus(ImportHistory.ImportStatus.FAILED);
-                importHistory.setErrorMessage(e.getMessage() != null ? e.getMessage().substring(0, Math.min(2000, e.getMessage().length())) : "Unknown error");
-                importHistoryRepository.save(importHistory);
+
+                String errorMsg = e.getMessage();
+                if (errorMsg == null || errorMsg.isEmpty()) {
+                    errorMsg = "Unknown error occurred during person import.";
+                } else {
+                    errorMsg = errorMsg.length() > 2000 ? errorMsg.substring(0, 2000) : errorMsg;
+                }
+                importHistory.setErrorMessage("error");
+                importHistory.setObjectsCount(0);
+                updateImportHistoryStatus(importHistory);
             } catch (Exception saveError) {
-                // Ignore save error, log if needed
                 System.err.println("Failed to save import history: " + saveError.getMessage());
+                saveError.printStackTrace();
             }
-            throw new RuntimeException("Import failed: " + e.getMessage(), e);
+
+            throw new RuntimeException("Person import failed: " + e.getMessage(), e);
         }
     }
+    @Transactional(TxType.REQUIRES_NEW)
+    public void updateImportHistoryStatus(ImportHistory importHistory) {
+        importHistoryRepository.save(importHistory);
+    }
+
+
 }
 
