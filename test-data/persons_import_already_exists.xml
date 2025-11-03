@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persons>
+    <person>
+        <name>John Doe</name>
+        <hairColor>BLACK</hairColor>
+        <eyeColor>GREEN</eyeColor>
+        <location>
+            <x>1</x>
+            <y>2.5</y>
+            <z>3.0</z>
+        </location>
+        <birthday>1980-01-15 00:00:00</birthday>
+        <nationality>CHINA</nationality>
+    </person>
+</persons>
+

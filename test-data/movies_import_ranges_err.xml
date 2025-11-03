@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<movies>
+    <movie>
+        <name>The Matrix</name>
+        <genre>ACTION</genre>
+        <mpaaRating>PG_13</mpaaRating>
+        <oscarsCount>4</oscarsCount>
+        <budget>63000000.0</budget>
+        <totalBoxOffice>467200000</totalBoxOffice>
+        <length>136</length>
+        <goldenPalmCount>1</goldenPalmCount>
+        <coordinates>
+            <x>100</x>
+            <y>200</y>
+        </coordinates>
+        <operator>
+            <name>Bipe</name>
+            <hairColor>BLACK</hairColor>
+            <eyeColor>BLACK</eyeColor>
+            <location>
+                <x>1</x>
+                <y>2.5</y>
+                <z>3.0</z>
+            </location>
+            <birthday>1957-05-12 00:00:00</birthday>
+            <nationality>CHINA</nationality>
+        </operator>
+        <director>
+            <name>Lahowski</name>
+            <hairColor>RED</hairColor>
+            <eyeColor>GREEN</eyeColor>
+            <location>
+                <x>10</x>
+                <y>20.0</y>
+                <z>30.5</z>
+            </location>
+            <birthday>1965-06-21 00:00:00</birthday>
+        </director>
+        <screenwriter>
+            <name>Lachowski</name>
+            <hairColor>YELLOW</hairColor>
+            <eyeColor>GREEN</eyeColor>
+            <location>
+                <x>15</x>
+                <y>25.0</y>
+                <z>35.5</z>
+            </location>
+            <birthday>1967-12-29 00:00:00</birthday>
+        </screenwriter>
+    </movie>
+    <movie>
+        <name>Interstellar</name>
+        <genre>ADVENTURE</genre>
+        <mpaaRating>PG_13</mpaaRating>
+        <oscarsCount>1</oscarsCount>
+        <budget>-165000000.0</budget>
+        <totalBoxOffice>-701700000</totalBoxOffice>
+        <length>169</length>
+        <goldenPalmCount>-1</goldenPalmCount>
+        <coordinates>
+            <x>200</x>
+            <y>300</y>
+        </coordinates>
+        <operator>
+            <name>Hoyte van Hoytema</name>
+            <hairColor>RED</hairColor>
+            <eyeColor>YELLOW</eyeColor>
+            <location>
+                <x>8</x>
+                <y>12.0</y>
+                <z>16.0</z>
+            </location>
+            <birthday>1971-10-04 00:00:00</birthday>
+        </operator>
+        <director>
+            <name>Christopher Nolan</name>
+            <hairColor>BLACK</hairColor>
+            <eyeColor>BLACK</eyeColor>
+            <location>
+                <x>20</x>
+                <y>30.0</y>
+                <z>40.0</z>
+            </location>
+            <birthday>1970-07-30 00:00:00</birthday>
+            <nationality>VATICAN</nationality>
+        </director>
+    </movie>
+</movies>
+

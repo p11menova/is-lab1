@@ -46,7 +46,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
-  const [size] = useState(10);
+  const [size] = useState(6);
   const [sortBy, setSortBy] = useState('creationDate');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [filters, setFilters] = useState<Filters>({
@@ -65,7 +65,11 @@ function App() {
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [importHistory, setImportHistory] = useState<any[]>([]);
-  const isAdmin = false; // TODO: Replace with actual auth
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [selectedError, setSelectedError] = useState('');
+  const [currentUser, setCurrentUser] = useState('user');
+  const users = ['user', 'pim', 'test'];
+
 
   // SSE connection
   useEffect(() => {
@@ -121,13 +125,11 @@ function App() {
     if (activeTab === 'import') {
       loadImportHistory();
     }
-  }, [page, sortBy, sortOrder, filters, activeTab]);
+  }, [page, sortBy, sortOrder, filters, activeTab, currentUser]);
 
   const loadImportHistory = async () => {
     try {
-      const url = isAdmin
-          ? `${API_BASE}/import/history?admin=true`
-          : `${API_BASE}/import/history?username=user`;
+      const url = `${API_BASE}/import/history?username=${currentUser}`;
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to load import history');
       const data = await response.json();
@@ -142,7 +144,7 @@ function App() {
       setLoading(true);
       setError(null);
 
-      const url = `${API_BASE}/import/${type}?filename=${file.name}`;
+      const url = `${API_BASE}/import/${type}?filename=${file.name}&username=${currentUser}`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/xml' },
@@ -153,14 +155,15 @@ function App() {
         const errorText = await response.text();
         throw new Error(errorText);
       }
-
+      //@ts-ignore
       const result = await response.json();
       await loadImportHistory();
+      // @ts-ignore
+      document.getElementById("refresh-import-history").click();
       if (type === 'movies') await loadMovies();
       else await loadPersons();
 
       setError(null);
-      alert(`✅ Import successful! Imported ${result.objectsCount || 0} ${type}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Import failed');
     } finally {
@@ -284,15 +287,29 @@ function App() {
 
   return (
       <div className="app">
+
+
         <header className="header">
-          <h1>Movies Management</h1>
+          <h1>Movies Information System</h1>
           <div className="header-actions">
+            <div className="user-selector">
+              <label>User:</label>
+              <select
+                  value={currentUser}
+                  onChange={(e) => setCurrentUser(e.target.value)}
+                  className="user-dropdown"
+              >
+                {users.map(user => (
+                    <option key={user} value={user}>{user}</option>
+                ))}
+              </select>
+            </div>
             <button onClick={() => setShowCreateDialog(true)} className="btn btn-primary">
-              <Plus size={16} />
+              <Plus size={16}/>
               Add Movie
             </button>
             <button onClick={() => setShowPersonDialog(true)} className="btn btn-primary">
-              <Plus size={16} />
+              <Plus size={16}/>
               Add Person
             </button>
             <button
@@ -307,10 +324,12 @@ function App() {
                 }}
                 className="btn btn-secondary"
             >
-              <RefreshCw size={16} />
+              <RefreshCw size={16}/>
               Refresh
             </button>
+
           </div>
+
         </header>
 
         <div className="tabs">
@@ -342,7 +361,18 @@ function App() {
             Import
           </button>
         </div>
-
+        {showErrorModal && (
+            <div className="error" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+              <span>{selectedError}</span>
+              <button
+                  onClick={() => {setError(null); setShowErrorModal(false)}}
+                  className="btn btn-sm"
+                  style={{padding: '0.25rem 0.5rem', minWidth: 'auto'}}
+              >
+                <X size={14}/>
+              </button>
+            </div>
+        )}
         {activeTab === 'movies' && (
             <div className="filters">
               <div className="filter-group">
@@ -511,11 +541,11 @@ function App() {
                   </label>
                 </div>
               </div>
-
+              <div className="table-container">
               <div className="import-history">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                   <h3>Import History</h3>
-                  <button onClick={loadImportHistory} className="btn btn-secondary">
+                  <button onClick={loadImportHistory} className="btn btn-secondary" id={"refresh-import-history"}>
                     <RefreshCw size={16} />
                     Refresh
                   </button>
@@ -550,13 +580,30 @@ function App() {
                             </td>
                             <td>{item.objectsCount ?? '-'}</td>
                             <td>{item.fileName || '-'}</td>
-                            <td>{item.errorMessage ? <span className="error-text" title={item.errorMessage}>{item.errorMessage}</span> : '-'}</td>
+                            <td>
+                              {item.errorMessage ? (
+                                  <button
+                                      onClick={() => {
+                                        setSelectedError(item.errorMessage);
+                                        setShowErrorModal(true);
+                                      }}
+                                      className="btn btn-sm"
+                                      style={{ minWidth: 'auto', borderColor: '#e24845', color: '#e24845' }}
+                                      title="View full error"
+                                  >
+                                    {item.errorMessage.length > 30 ? item.errorMessage.slice(0, 30) + '...' : item.errorMessage}
+                                  </button>
+                              ) : (
+                                  '-'
+                              )}
+                            </td>
                           </tr>
                       ))
                   )}
                   </tbody>
                 </table>
               </div>
+            </div>
             </div>
         )}
 
@@ -1094,5 +1141,8 @@ function PersonDialog({ person, onSave, onClose }: PersonDialogProps) {
       </div>
   );
 }
+
+
+
 
 export default App;

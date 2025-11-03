@@ -31,6 +31,10 @@ public class ImportService {
     private ImportHistoryRepository importHistoryRepository;
 
     @Inject
+    private ImportHistoryService importHistoryService; // <-- new injection
+
+
+    @Inject
     private UniqueConstraintService uniqueConstraintService;
 
     private final XmlMapper xmlMapper;
@@ -46,7 +50,7 @@ public class ImportService {
         importHistory.setUsername(username);
         importHistory.setStatus(ImportHistory.ImportStatus.IN_PROGRESS);
         importHistory.setFileName(fileName);
-        importHistory = importHistoryRepository.save(importHistory);
+        importHistory = importHistoryService.saveNew(importHistory);
 
         try {
             // Parse XML to list of movies
@@ -108,13 +112,12 @@ public class ImportService {
                 if (errorMsg == null || errorMsg.isEmpty()) {
                     errorMsg = "Unknown error occurred during import.";
                 } else {
-                    // Безопасная обрезка до 2000 символов (учитывает Unicode)
-                    errorMsg = errorMsg.length() > 2000 ? errorMsg.substring(0, 2000) : errorMsg;
+                    errorMsg = errorMsg.length() > 5000 ? errorMsg.substring(0, 5000) : errorMsg;
                 }
+                importHistory.setImportDate(java.time.LocalDateTime.now());
                 importHistory.setErrorMessage(errorMsg);
                 System.out.println("Import failed: " + errorMsg);
-                System.out.println("сохраняем историю импорта с ошибкой. " + importHistory);
-                importHistoryRepository.save(importHistory);
+                importHistoryService.saveNew(importHistory);
             } catch (Exception saveError) {
                 // Логируем ошибку сохранения истории импорта
                 System.err.println("Failed to save import history: " + saveError.getMessage());
@@ -133,7 +136,7 @@ public class ImportService {
         importHistory.setUsername(username);
         importHistory.setStatus(ImportHistory.ImportStatus.IN_PROGRESS);
         importHistory.setFileName(fileName);
-        importHistory = importHistoryRepository.save(importHistory);
+        importHistory = importHistoryService.saveNew(importHistory);
 
         try {
             // Parse XML to list of persons
@@ -171,11 +174,11 @@ public class ImportService {
                 if (errorMsg == null || errorMsg.isEmpty()) {
                     errorMsg = "Unknown error occurred during person import.";
                 } else {
-                    errorMsg = errorMsg.length() > 2000 ? errorMsg.substring(0, 2000) : errorMsg;
+                    errorMsg = errorMsg.length() > 5000 ? errorMsg.substring(0, 5000) : errorMsg;
                 }
-                importHistory.setErrorMessage("error");
-                importHistory.setObjectsCount(0);
-                updateImportHistoryStatus(importHistory);
+                importHistory.setErrorMessage(errorMsg);
+                importHistory.setImportDate(java.time.LocalDateTime.now());
+                importHistoryService.saveNew(importHistory);
             } catch (Exception saveError) {
                 System.err.println("Failed to save import history: " + saveError.getMessage());
                 saveError.printStackTrace();

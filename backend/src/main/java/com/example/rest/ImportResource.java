@@ -22,9 +22,8 @@ public class ImportResource {
     @POST
     @Path("/movies")
     @Consumes({MediaType.APPLICATION_XML, "application/xml", "text/xml"})
-    public Response importMovies(java.io.InputStream inputStream, @QueryParam("filename") @DefaultValue("movies_import.xml") String fileName) {
+    public Response importMovies(java.io.InputStream inputStream, @QueryParam("filename") @DefaultValue("movies_import.xml") String fileName, @QueryParam("username") @DefaultValue("user") String username) {
         try {
-            String username = "user";
             ImportHistory result = importService.importMoviesFromXml(inputStream, username, fileName);
 
             return Response.status(Response.Status.CREATED)
@@ -40,9 +39,8 @@ public class ImportResource {
     @POST
     @Path("/persons")
     @Consumes({MediaType.APPLICATION_XML, "application/xml", "text/xml"})
-    public Response importPersons(java.io.InputStream inputStream, @QueryParam("filename") @DefaultValue("persons_import.xml") String fileName) {
+    public Response importPersons(java.io.InputStream inputStream, @QueryParam("filename") @DefaultValue("persons_import.xml") String fileName, @QueryParam("username") @DefaultValue("user") String username) {
         try {
-            String username = "user";
             ImportHistory result = importService.importPersonsFromXml(inputStream, username, fileName);
 
             return Response.status(Response.Status.CREATED)

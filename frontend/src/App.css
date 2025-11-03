@@ -12,12 +12,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #f8fafc;
   color: #1e293b;
+  align-items: center;
+  width: 100%;
 }
 
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  min-width:100% ;
 }
 
 .header {
@@ -308,12 +311,24 @@ body {
   border: 1px solid #e2e8f0;
   overflow: hidden;
   text-align: center;
-  max-width: 100%;
+  width: 100%;
+  overflow-x: auto; /* Добавляем горизонтальную прокрутку при необходимости */
+  margin: 1rem 0;
 }
+/* Общий стиль для контентных блоков */
+.table-container,
+.analytics,
+.import {
+  width: 100%;
+  padding: 1rem 2rem; /* Боковые отступы */
+  box-sizing: border-box; /* Учитываем padding в ширине */
+}
+
 
 .movies-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 100%;
 }
 
 .movies-table th {
@@ -771,4 +786,71 @@ body {
   /* FIOLET (PURPLE) LOADING COLOR */
   color: #7c0eab;
   font-weight: 500;
+}
+/* Обновленный стиль для user-selector */
+.user-selector {
+  position: relative; /* Для позиционирования псевдоэлемента */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: white;
+  color: #374151;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  height: 36px;
+}
+
+/* Псевдоэлемент для создания кликабельной области */
+.user-selector::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1; /* Размещаем над всеми элементами внутри */
+}
+
+/* Стиль для выпадающего списка */
+.user-dropdown {
+  position: relative; /* Для корректного позиционирования */
+  z-index: 2; /* Размещаем над псевдоэлементом */
+  background: transparent;
+  border: none;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right center;
+  padding-right: 1.5rem;
+  width: 100%; /* Занимает всю ширину контейнера */
+}
+
+/* Для фиолетового акцента как в кнопках */
+.user-selector:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.user-selector:hover .user-dropdown {
+  color: #7c0eab; /* Фиолетовый цвет при наведении */
+}
+
+.user-selector.active {
+  border-color: #7c0eab;
+}
+
+.user-dropdown:focus {
+  outline: none;
 }
