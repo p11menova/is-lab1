@@ -9,23 +9,20 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.util.List;
 
 @Path("/persons")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class PersonResource {
-    @Inject
-    private PersonRepository personRepository;
-    @Inject
-    private UniqueConstraintService uniqueConstraintService;
+    @Inject private PersonRepository personRepository;
+    @Inject private UniqueConstraintService uniqueConstraintService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPersons(
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("-1") int size) {
-        // size <= 0 means "no pagination" -> return all
+
         System.out.println("get persons with pagination");
         System.out.println(page + " " + size);
         if (size <= 0) {

@@ -72,8 +72,10 @@ public class PersonRepository {
                         .getSingleResult();
         return count > 0;
     }
+
     public List<Person> findPaged(Integer page, Integer size) {
-        TypedQuery<Person> query = em.createQuery("SELECT p FROM Person p ORDER BY p.id", Person.class);
+        TypedQuery<Person> query =
+                em.createQuery("SELECT p FROM Person p ORDER BY p.id", Person.class);
 
         if (page != null && size != null && page >= 0 && size > 0) {
             query.setFirstResult(page * size);
@@ -83,18 +85,10 @@ public class PersonRepository {
         return query.getResultList();
     }
 
-    /**
-     * Считает общее количество всех персон в базе данных.
-     *
-     * @return Общее количество записей.
-     */
     public Long countAll() {
         return em.createQuery("SELECT COUNT(p) FROM Person p", Long.class).getSingleResult();
     }
 
-    /**
-     * Заменяет ваш старый метод findAll, чтобы быть консистентным с пагинацией.
-     */
     public List<Person> findAll() {
         return em.createQuery("SELECT p FROM Person p ORDER BY p.id", Person.class).getResultList();
     }

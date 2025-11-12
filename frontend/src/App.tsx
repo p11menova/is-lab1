@@ -46,7 +46,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
-  const [size] = useState(6);
+  const [size] = useState(8);
   const [sortBy, setSortBy] = useState('creationDate');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [filters, setFilters] = useState<Filters>({
@@ -138,6 +138,7 @@ function App() {
       setError(err instanceof Error ? err.message : 'Failed to load import history');
     }
   };
+
 
   const handleFileImport = async (file: File, type: 'movies' | 'persons') => {
     try {
@@ -543,12 +544,18 @@ function App() {
               </div>
               <div className="table-container">
               <div className="import-history">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '1rem'
+                }}>
                   <h3>Import History</h3>
                   <button onClick={loadImportHistory} className="btn btn-secondary" id={"refresh-import-history"}>
-                    <RefreshCw size={16} />
+                    <RefreshCw size={16}/>
                     Refresh
                   </button>
+
                 </div>
                 <table className="movies-table">
                   <thead>
