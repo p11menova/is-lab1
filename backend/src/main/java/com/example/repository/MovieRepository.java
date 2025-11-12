@@ -29,31 +29,36 @@ public class MovieRepository {
         return Optional.ofNullable(em.find(Movie.class, id));
     }
 
-    public boolean existsByNameAndOperatorAndDirector(String name, Long operatorId, Long directorId) {
-        Long count = em.createQuery(
-                        "SELECT COUNT(m) FROM Movie m WHERE m.name = :name " +
-                                "AND m.operator.id = :operatorId " +
-                                "AND (m.director.id = :directorId OR (m.director IS NULL AND :directorId IS NULL))",
-                        Long.class)
-                .setParameter("name", name)
-                .setParameter("operatorId", operatorId)
-                .setParameter("directorId", directorId)
-                .getSingleResult();
+    public boolean existsByNameAndOperatorAndDirector(
+            String name, Long operatorId, Long directorId) {
+        Long count =
+                em.createQuery(
+                                "SELECT COUNT(m) FROM Movie m WHERE m.name = :name AND"
+                                        + " m.operator.id = :operatorId AND (m.director.id ="
+                                        + " :directorId OR (m.director IS NULL AND :directorId IS"
+                                        + " NULL))",
+                                Long.class)
+                        .setParameter("name", name)
+                        .setParameter("operatorId", operatorId)
+                        .setParameter("directorId", directorId)
+                        .getSingleResult();
         return count > 0;
     }
 
-    public boolean existsByNameAndOperatorAndDirectorExcludingId(String name, Long operatorId, Long directorId, Long excludeId) {
-        Long count = em.createQuery(
-                        "SELECT COUNT(m) FROM Movie m WHERE m.name = :name " +
-                                "AND m.operator.id = :operatorId " +
-                                "AND (m.director.id = :directorId OR (m.director IS NULL AND :directorId IS NULL)) " +
-                                "AND m.id != :excludeId",
-                        Long.class)
-                .setParameter("name", name)
-                .setParameter("operatorId", operatorId)
-                .setParameter("directorId", directorId)
-                .setParameter("excludeId", excludeId)
-                .getSingleResult();
+    public boolean existsByNameAndOperatorAndDirectorExcludingId(
+            String name, Long operatorId, Long directorId, Long excludeId) {
+        Long count =
+                em.createQuery(
+                                "SELECT COUNT(m) FROM Movie m WHERE m.name = :name AND"
+                                        + " m.operator.id = :operatorId AND (m.director.id ="
+                                        + " :directorId OR (m.director IS NULL AND :directorId IS"
+                                        + " NULL)) AND m.id != :excludeId",
+                                Long.class)
+                        .setParameter("name", name)
+                        .setParameter("operatorId", operatorId)
+                        .setParameter("directorId", directorId)
+                        .setParameter("excludeId", excludeId)
+                        .getSingleResult();
         return count > 0;
     }
 

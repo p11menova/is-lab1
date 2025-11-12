@@ -24,14 +24,18 @@ public class ImportHistoryRepository {
     }
 
     public List<ImportHistory> findAll() {
-        return em.createQuery("SELECT ih FROM ImportHistory ih ORDER BY ih.importDate DESC", ImportHistory.class)
+        return em.createQuery(
+                        "SELECT ih FROM ImportHistory ih ORDER BY ih.importDate DESC",
+                        ImportHistory.class)
                 .getResultList();
     }
 
     public List<ImportHistory> findByUsername(String username) {
-        return em.createQuery("SELECT ih FROM ImportHistory ih WHERE ih.username = :username ORDER BY ih.importDate DESC", ImportHistory.class)
+        return em.createQuery(
+                        "SELECT ih FROM ImportHistory ih WHERE ih.username = :username ORDER BY"
+                                + " ih.importDate DESC",
+                        ImportHistory.class)
                 .setParameter("username", username)
                 .getResultList();
     }
 }
-

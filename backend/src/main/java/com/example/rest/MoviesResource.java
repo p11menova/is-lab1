@@ -120,7 +120,6 @@ public class MoviesResource {
                                     existingMovie.setOperator(movieDetails.getOperator());
                                 }
 
-                                // Check uniqueness after all fields are updated
                                 uniqueConstraintService.validateMovieUniqueness(existingMovie);
 
                                 Movie updatedMovie = movieRepository.saveOrUpdate(existingMovie);

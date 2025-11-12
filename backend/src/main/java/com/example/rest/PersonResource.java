@@ -65,7 +65,6 @@ public class PersonResource {
                                 existingPerson.setBirthday(updatedPerson.getBirthday());
                                 existingPerson.setNationality(updatedPerson.getNationality());
 
-                                // Check uniqueness if name or birthday changed
                                 uniqueConstraintService.validatePersonUniqueness(existingPerson);
 
                                 Person result = personRepository.saveOrUpdate(existingPerson);

@@ -47,4 +47,3 @@ public class ImportHistory {
         IN_PROGRESS
     }
 }
-

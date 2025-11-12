@@ -13,8 +13,6 @@ public class JacksonConfig implements ContextResolver<ObjectMapper> {
     public JacksonConfig() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JSR310Module());
-        // Дополнительно можно настроить, например:
-        // objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
     @Override

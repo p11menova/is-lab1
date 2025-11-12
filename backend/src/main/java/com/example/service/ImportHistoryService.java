@@ -10,8 +10,7 @@ import jakarta.transaction.Transactional.TxType;
 @ApplicationScoped
 public class ImportHistoryService {
 
-    @Inject
-    ImportHistoryRepository repository;
+    @Inject ImportHistoryRepository repository;
 
     @Transactional(TxType.REQUIRES_NEW)
     public ImportHistory saveNew(ImportHistory history) {

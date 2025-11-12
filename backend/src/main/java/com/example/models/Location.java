@@ -8,10 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @Embeddable
 public class Location {
-    @JacksonXmlProperty
-    private Integer x;
-    @JacksonXmlProperty
-    private Double y;
-    @JacksonXmlProperty
-    private float z;
+    @JacksonXmlProperty private Integer x;
+    @JacksonXmlProperty private Double y;
+    @JacksonXmlProperty private float z;
 }

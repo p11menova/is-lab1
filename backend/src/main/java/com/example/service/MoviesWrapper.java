@@ -8,7 +8,7 @@ import java.util.List;
 
 @JacksonXmlRootElement(localName = "movies")
 public class MoviesWrapper {
-    
+
     @JacksonXmlElementWrapper(useWrapping = false)
     @JacksonXmlProperty(localName = "movie")
     private List<Movie> movies;
@@ -21,4 +21,3 @@ public class MoviesWrapper {
         this.movies = movies;
     }
 }
-

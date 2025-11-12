@@ -8,8 +8,6 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 public class Coordinates {
-    @JacksonXmlProperty
-    private long x;
-    @JacksonXmlProperty
-    private long y;
+    @JacksonXmlProperty private long x;
+    @JacksonXmlProperty private long y;
 }
