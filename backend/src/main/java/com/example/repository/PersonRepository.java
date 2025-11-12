@@ -4,6 +4,7 @@ import com.example.models.Person;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
@@ -71,10 +72,31 @@ public class PersonRepository {
                         .getSingleResult();
         return count > 0;
     }
+    public List<Person> findPaged(Integer page, Integer size) {
+        TypedQuery<Person> query = em.createQuery("SELECT p FROM Person p ORDER BY p.id", Person.class);
 
+        if (page != null && size != null && page >= 0 && size > 0) {
+            query.setFirstResult(page * size);
+            query.setMaxResults(size);
+        }
+
+        return query.getResultList();
+    }
+
+    /**
+     * Считает общее количество всех персон в базе данных.
+     *
+     * @return Общее количество записей.
+     */
+    public Long countAll() {
+        return em.createQuery("SELECT COUNT(p) FROM Person p", Long.class).getSingleResult();
+    }
+
+    /**
+     * Заменяет ваш старый метод findAll, чтобы быть консистентным с пагинацией.
+     */
     public List<Person> findAll() {
-
-        return em.createQuery("SELECT p FROM Person p", Person.class).getResultList();
+        return em.createQuery("SELECT p FROM Person p ORDER BY p.id", Person.class).getResultList();
     }
 
     @Transactional

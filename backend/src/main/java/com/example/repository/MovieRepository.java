@@ -63,7 +63,7 @@ public class MovieRepository {
     }
 
     public List<Movie> findAll() {
-        return em.createQuery("SELECT m FROM Movie m ORDER BY m.creationDate DESC", Movie.class)
+        return em.createQuery("SELECT m FROM Movie m ORDER BY m.id", Movie.class)
                 .getResultList();
     }
 

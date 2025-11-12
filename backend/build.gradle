@@ -56,6 +56,35 @@ war {
     from 'src/main/webapp'
 }
 
+
+tasks.register('deployWar', Copy) {
+    description = 'Deletes old WARs and deploys the new one to WildFly.'
+    group = 'deployment'
+
+    dependsOn 'war'
+    onlyIf { project.hasProperty('wildfly.deployment.dir') }
+
+    doFirst {
+        def deploymentDir = file(project.property('wildfly.deployment.dir'))
+
+        def warNamePrefix = war.archiveBaseName.get()
+
+        println "Searching for files with prefix '${warNamePrefix}' in '${deploymentDir}' to delete..."
+
+        deploymentDir.eachFileRecurse(groovy.io.FileType.FILES) { file ->
+            if (file.name.startsWith(warNamePrefix)) {
+                println "Deleting old deployment file: ${file.path}"
+                file.delete()
+            }
+        }
+    }
+    from war
+    into project.property('wildfly.deployment.dir')
+
+    doLast {
+        println "Successfully copied ${war.archiveFileName.get()} to ${project.property('wildfly.deployment.dir')}"
+    }
+}
 test {
     useJUnitPlatform()
 }

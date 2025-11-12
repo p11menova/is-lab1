@@ -1,0 +1,4 @@
+### GET request to example server
+#GET http://localhost:8080/is_lab1-cursor/persons?page=0&size=6
+
+GET http://localhost:8080/is_lab1-cursor/persons?page=0&size=6

@@ -15,14 +15,27 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class PersonResource {
-    @Inject private PersonRepository personRepository;
-    @Inject private UniqueConstraintService uniqueConstraintService;
+    @Inject
+    private PersonRepository personRepository;
+    @Inject
+    private UniqueConstraintService uniqueConstraintService;
 
     @GET
-    public Response getAllPersons() {
-        List<Person> persons = personRepository.findAll();
-
-        return Response.ok(persons).build();
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPersons(
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("-1") int size) {
+        // size <= 0 means "no pagination" -> return all
+        System.out.println("get persons with pagination");
+        System.out.println(page + " " + size);
+        if (size <= 0) {
+            var all = personRepository.findAll();
+            return Response.ok(all).build();
+        } else {
+            var paged = personRepository.findPaged(page, size);
+            Long total = personRepository.countAll();
+            return Response.ok(paged).header("X-Total-Count", total).build();
+        }
     }
 
     @GET
