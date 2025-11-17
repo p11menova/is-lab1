@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, RefreshCw, Filter, X } from 'lucide-react';
 import './App.css';
 
-const API_BASE = 'http://127.0.0.1:8080/is_lab1-cursor';
+const API_BASE = 'http://127.0.0.1:8080/is_lab1';
 
 interface Movie {
   id: number;
@@ -154,19 +154,24 @@ function App() {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(errorText);
+        await loadImportHistory();
+        throw new Error(errorText || 'Import request failed');
       }
-      //@ts-ignore
-      const result = await response.json();
+
+      await response.json();
+
       await loadImportHistory();
-      // @ts-ignore
-      document.getElementById("refresh-import-history").click();
-      if (type === 'movies') await loadMovies();
-      else await loadPersons();
+
+      if (type === 'movies') {
+        await loadMovies();
+      } else {
+        await loadPersons();
+      }
 
       setError(null);
+
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Import failed');
+      setError(err instanceof Error ? err.message : 'An unknown import error occurred');
     } finally {
       setLoading(false);
     }
@@ -551,7 +556,7 @@ function App() {
                   marginBottom: '1rem'
                 }}>
                   <h3>Import History</h3>
-                  <button onClick={loadImportHistory} className="btn btn-secondary" id={"refresh-import-history"}>
+                  <button onClick={loadImportHistory} className="btn btn-secondary" id="refresh-import-history">
                     <RefreshCw size={16}/>
                     Refresh
                   </button>
