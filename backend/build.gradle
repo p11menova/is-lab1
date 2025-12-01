@@ -8,6 +8,9 @@ group = 'com.example'
 version = '1.0-SNAPSHOT'
 
 java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
@@ -17,7 +20,7 @@ repositories {
 }
 spotless {
     java {
-        googleJavaFormat('1.22.0').aosp().reflowLongStrings()
+        googleJavaFormat('1.23.0').aosp().reflowLongStrings()
         target 'src/**/*.java'
         replaceRegex('Remove all comments',
                 // Регулярное выражение для захвата всех Java-комментариев
@@ -88,6 +91,38 @@ tasks.register('deployWar', Copy) {
 test {
     useJUnitPlatform()
 }
+
+// Отключаем spotless из процесса сборки, оставляем только для задачи format
+tasks.named('spotlessJava').configure {
+    enabled = false
+}
+
+
+tasks.register('deployRemote', Exec) {
+    description = 'Deploys WAR to remote server via SCP'
+    group = 'deployment'
+    
+    dependsOn 'war'
+    
+    doFirst {
+        def warFile = war.archiveFile.get().asFile
+        def remoteHost = project.findProperty('remote.host') ?: 'se.ifmo.ru'
+        def remoteUser = project.findProperty('remote.user') ?: 's409342'
+        def remotePort = project.findProperty('remote.port') ?: '2222'
+        def remotePath = project.findProperty('remote.path') ?: '~/wildfly-34.0.0.Final/standalone/deployments'
+        
+        def remoteTarget = "${remoteUser}@${remoteHost}:${remotePath}"
+        
+        println "Deploying ${warFile.name} to ${remoteTarget}..."
+        
+        commandLine 'scp', '-P', remotePort, '-o', 'StrictHostKeyChecking=no', warFile.absolutePath, remoteTarget
+    }
+    
+    doLast {
+        println "Successfully deployed!"
+    }
+}
+
 
 
 tasks.register('format') {
