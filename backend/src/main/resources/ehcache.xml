@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config
+        xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xmlns='http://www.ehcache.org/v3'
+        xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.10.xsd">
+
+    <cache-template name="default">
+        <expiry>
+            <ttl unit="seconds">3600</ttl>
+        </expiry>
+        <heap unit="entries">1000</heap>
+    </cache-template>
+
+    <cache alias="com.example.models.Movie" uses-template="default">
+        <heap unit="entries">100</heap>
+    </cache>
+
+    <cache alias="com.example.models.Person" uses-template="default">
+        <heap unit="entries">100</heap>
+    </cache>
+
+    <cache alias="org.hibernate.cache.internal.StandardQueryCache" uses-template="default">
+        <heap unit="entries">50</heap>
+    </cache>
+
+    <cache alias="org.hibernate.cache.spi.UpdateTimestampsCache" uses-template="default">
+        <heap unit="entries">5000</heap>
+    </cache>
+
+</config>

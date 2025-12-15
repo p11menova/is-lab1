@@ -1,5 +1,6 @@
 package com.example.rest;
 
+import com.example.interceptors.CacheStatisticsLogging;
 import com.example.models.Movie;
 import com.example.realtime.SseBroadcasterService;
 import com.example.repository.MovieRepository;
@@ -15,6 +16,7 @@ import java.util.List;
 @Path("/movies")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@jakarta.enterprise.context.RequestScoped
 public class MoviesResource {
 
     @Inject private MovieRepository movieRepository;
@@ -37,6 +39,7 @@ public class MoviesResource {
     }
 
     @GET
+    @CacheStatisticsLogging
     public List<Movie> getAllMovies(
             @QueryParam("page") Integer page,
             @QueryParam("size") Integer size,
@@ -54,6 +57,7 @@ public class MoviesResource {
 
     @GET
     @Path("/{id}")
+    @CacheStatisticsLogging
     public Response getMovieById(@PathParam("id") Long id) {
         return movieRepository
                 .findById(id)

@@ -34,6 +34,9 @@ public class ImportHistory {
     @Column(name = "file_name")
     private String fileName;
 
+    @Column(name = "file_storage_key")
+    private String fileStorageKey;
+
     @PrePersist
     protected void onCreate() {
         if (importDate == null) {

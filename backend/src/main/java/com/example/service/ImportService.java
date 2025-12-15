@@ -14,6 +14,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.transaction.Transactional.TxType;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,8 @@ public class ImportService {
 
     @Inject private UniqueConstraintService uniqueConstraintService;
 
+    @Inject private DistributedTransactionService distributedTransactionService;
+
     private final XmlMapper xmlMapper;
 
     public ImportService() {
@@ -41,20 +44,37 @@ public class ImportService {
     @Transactional(value = TxType.REQUIRED, rollbackOn = Exception.class)
     public ImportHistory importMoviesFromXml(
             InputStream inputStream, String username, String fileName) {
+        byte[] fileData;
+        try {
+            fileData = inputStream.readAllBytes();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read input stream", e);
+        }
+
+        DistributedTransactionService.TransactionContext transaction = 
+                distributedTransactionService.createTransaction();
+
         ImportHistory importHistory = new ImportHistory();
         importHistory.setUsername(username);
         importHistory.setStatus(ImportHistory.ImportStatus.IN_PROGRESS);
         importHistory.setFileName(fileName);
-        importHistory = importHistoryService.saveNew(importHistory);
 
         try {
+            distributedTransactionService.prepareMinIO(
+                    transaction,
+                    new ByteArrayInputStream(fileData),
+                    fileName,
+                    "application/xml"
+            );
 
-            MoviesWrapper wrapper = xmlMapper.readValue(inputStream, MoviesWrapper.class);
+            importHistory = importHistoryService.saveNew(importHistory);
+            final ImportHistory finalImportHistory = importHistory;
+
+            MoviesWrapper wrapper = xmlMapper.readValue(new ByteArrayInputStream(fileData), MoviesWrapper.class);
             List<Movie> movies =
                     wrapper.getMovies() != null ? wrapper.getMovies() : new ArrayList<>();
 
             List<Movie> validMovies = new ArrayList<>();
-            int importedCount = 0;
 
             for (Movie movie : movies) {
                 try {
@@ -63,19 +83,15 @@ public class ImportService {
                     if (movie.getOperator() != null && movie.getOperator().getId() == null) {
                         PersonValidator.validate(movie.getOperator());
                         uniqueConstraintService.validatePersonUniqueness(movie.getOperator());
-                        movie.setOperator(personRepository.saveOrUpdate(movie.getOperator()));
                     }
                     if (movie.getDirector() != null && movie.getDirector().getId() == null) {
                         PersonValidator.validate(movie.getDirector());
                         uniqueConstraintService.validatePersonUniqueness(movie.getDirector());
-                        movie.setDirector(personRepository.saveOrUpdate(movie.getDirector()));
                     }
                     if (movie.getScreenwriter() != null
                             && movie.getScreenwriter().getId() == null) {
                         PersonValidator.validate(movie.getScreenwriter());
                         uniqueConstraintService.validatePersonUniqueness(movie.getScreenwriter());
-                        movie.setScreenwriter(
-                                personRepository.saveOrUpdate(movie.getScreenwriter()));
                     }
 
                     uniqueConstraintService.validateMovieUniqueness(movie);
@@ -86,17 +102,35 @@ public class ImportService {
                 }
             }
 
-            for (Movie movie : validMovies) {
-                movieRepository.saveOrUpdate(movie);
-                importedCount++;
-            }
+            // Фаза 2: Commit (DB операции выполняются здесь)
+            final int[] importedCount = {0};
+            distributedTransactionService.prepareDB(transaction, () -> {
+                for (Movie movie : validMovies) {
+                    if (movie.getOperator() != null && movie.getOperator().getId() == null) {
+                        movie.setOperator(personRepository.saveOrUpdate(movie.getOperator()));
+                    }
+                    if (movie.getDirector() != null && movie.getDirector().getId() == null) {
+                        movie.setDirector(personRepository.saveOrUpdate(movie.getDirector()));
+                    }
+                    if (movie.getScreenwriter() != null && movie.getScreenwriter().getId() == null) {
+                        movie.setScreenwriter(personRepository.saveOrUpdate(movie.getScreenwriter()));
+                    }
+                    movieRepository.saveOrUpdate(movie);
+                    importedCount[0]++;
+                }
 
-            importHistory.setStatus(ImportHistory.ImportStatus.SUCCESS);
-            importHistory.setObjectsCount(importedCount);
-            importHistoryRepository.save(importHistory);
+                finalImportHistory.setStatus(ImportHistory.ImportStatus.SUCCESS);
+                finalImportHistory.setObjectsCount(importedCount[0]);
+                finalImportHistory.setFileStorageKey(transaction.getMinioObjectKey());
+                importHistoryRepository.save(finalImportHistory);
+            });
+            distributedTransactionService.commit(transaction);
 
-            return importHistory;
+            return finalImportHistory;
         } catch (Exception e) {
+            // Rollback транзакции
+            distributedTransactionService.rollback(transaction);
+
             try {
                 importHistory.setStatus(ImportHistory.ImportStatus.FAILED);
 
@@ -122,18 +156,36 @@ public class ImportService {
     @Transactional(value = TxType.REQUIRED, rollbackOn = Exception.class)
     public ImportHistory importPersonsFromXml(
             InputStream inputStream, String username, String fileName) {
+        // Читаем InputStream в память для повторного использования
+        byte[] fileData;
+        try {
+            fileData = inputStream.readAllBytes();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read input stream", e);
+        }
+
+        DistributedTransactionService.TransactionContext transaction = 
+                distributedTransactionService.createTransaction();
+
         ImportHistory importHistory = new ImportHistory();
         importHistory.setUsername(username);
         importHistory.setStatus(ImportHistory.ImportStatus.IN_PROGRESS);
         importHistory.setFileName(fileName);
-        importHistory = importHistoryService.saveNew(importHistory);
 
         try {
-            PersonsWrapper wrapper = xmlMapper.readValue(inputStream, PersonsWrapper.class);
+            distributedTransactionService.prepareMinIO(
+                    transaction,
+                    new ByteArrayInputStream(fileData),
+                    fileName,
+                    "application/xml"
+            );
+
+            importHistory = importHistoryService.saveNew(importHistory);
+            final ImportHistory finalImportHistory = importHistory;
+
+            PersonsWrapper wrapper = xmlMapper.readValue(new ByteArrayInputStream(fileData), PersonsWrapper.class);
             List<Person> persons =
                     wrapper.getPersons() != null ? wrapper.getPersons() : new ArrayList<>();
-
-            int importedCount = 0;
 
             for (Person person : persons) {
                 try {
@@ -145,17 +197,24 @@ public class ImportService {
                 }
             }
 
-            for (Person person : persons) {
-                personRepository.saveOrUpdate(person);
-                importedCount++;
-            }
+            final int[] importedCount = {0};
+            distributedTransactionService.prepareDB(transaction, () -> {
+                for (Person person : persons) {
+                    personRepository.saveOrUpdate(person);
+                    importedCount[0]++;
+                }
 
-            importHistory.setStatus(ImportHistory.ImportStatus.SUCCESS);
-            importHistory.setObjectsCount(importedCount);
-            importHistoryRepository.save(importHistory);
+                finalImportHistory.setStatus(ImportHistory.ImportStatus.SUCCESS);
+                finalImportHistory.setObjectsCount(importedCount[0]);
+                finalImportHistory.setFileStorageKey(transaction.getMinioObjectKey());
+                importHistoryRepository.save(finalImportHistory);
+            });
+            distributedTransactionService.commit(transaction);
 
-            return importHistory;
+            return finalImportHistory;
         } catch (Exception e) {
+            distributedTransactionService.rollback(transaction);
+
             try {
                 importHistory.setStatus(ImportHistory.ImportStatus.FAILED);
 

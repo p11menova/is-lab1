@@ -10,6 +10,7 @@ import jakarta.ws.rs.sse.Sse;
 import jakarta.ws.rs.sse.SseEventSink;
 
 @Path("/events")
+@jakarta.enterprise.context.RequestScoped
 public class EventsResource {
 
     @Inject private SseBroadcasterService sseService;

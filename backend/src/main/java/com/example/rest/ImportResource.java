@@ -3,19 +3,24 @@ package com.example.rest;
 import com.example.models.ImportHistory;
 import com.example.repository.ImportHistoryRepository;
 import com.example.service.ImportService;
+import com.example.service.MinIOService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.io.InputStream;
 import java.util.List;
 
 @Path("/import")
 @Produces(MediaType.APPLICATION_JSON)
+@jakarta.enterprise.context.RequestScoped
 public class ImportResource {
 
     @Inject private ImportService importService;
 
     @Inject private ImportHistoryRepository importHistoryRepository;
+
+    @Inject private MinIOService minIOService;
 
     @POST
     @Path("/movies")
@@ -77,6 +82,32 @@ public class ImportResource {
         return importHistoryRepository
                 .findById(id)
                 .map(history -> Response.ok(history).build())
+                .orElse(Response.status(Response.Status.NOT_FOUND).build());
+    }
+
+    @GET
+    @Path("/history/{id}/file")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response downloadImportedFile(@PathParam("id") Long id) {
+        return importHistoryRepository
+                .findById(id)
+                .map(history -> {
+                    if (history.getFileStorageKey() == null || history.getFileStorageKey().isEmpty()) {
+                        return Response.status(Response.Status.NOT_FOUND)
+                                .entity("File not found for this import history.")
+                                .build();
+                    }
+                    try {
+                        InputStream fileStream = minIOService.downloadFile(history.getFileStorageKey());
+                        return Response.ok(fileStream)
+                                .header("Content-Disposition", "attachment; filename=\"" + history.getFileName() + "\"")
+                                .build();
+                    } catch (Exception e) {
+                        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                                .entity("Failed to download file: " + e.getMessage())
+                                .build();
+                    }
+                })
                 .orElse(Response.status(Response.Status.NOT_FOUND).build());
     }
 }

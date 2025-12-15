@@ -4,12 +4,16 @@ import com.example.models.enums.MovieGenre;
 import com.example.models.enums.MpaaRating;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
 @Entity
 @Table(name = "movies")
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Movie {
 
     @Id

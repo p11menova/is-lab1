@@ -46,6 +46,12 @@ dependencies {
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.16.1'
     implementation 'com.fasterxml.woodstox:woodstox-core:6.5.1'
 
+    // Ehcache для L2 JPA Cache
+    implementation 'org.ehcache:ehcache:3.10.8'
+    implementation 'org.hibernate:hibernate-jcache:6.4.4.Final'
+
+    // MinIO для S3-совместимого хранилища
+    implementation 'io.minio:minio:8.5.10'
 
     compileOnly 'org.projectlombok:lombok:1.18.32'
     annotationProcessor 'org.projectlombok:lombok:1.18.32'

@@ -1,5 +1,6 @@
 package com.example.rest;
 
+import com.example.interceptors.CacheStatisticsLogging;
 import com.example.models.Person;
 import com.example.repository.PersonRepository;
 import com.example.service.UniqueConstraintService;
@@ -13,6 +14,7 @@ import jakarta.ws.rs.core.Response;
 @Path("/persons")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@jakarta.enterprise.context.RequestScoped
 public class PersonResource {
     @Inject private PersonRepository personRepository;
     @Inject private UniqueConstraintService uniqueConstraintService;
@@ -37,6 +39,7 @@ public class PersonResource {
 
     @GET
     @Path("/{id}")
+    @CacheStatisticsLogging
     public Response getPersonById(@PathParam("id") Long id) {
 
         return personRepository

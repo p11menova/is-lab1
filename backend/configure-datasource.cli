@@ -1,0 +1,26 @@
+# Создание datasource для PostgreSQL в Docker
+# Драйвер уже зарегистрирован в entrypoint.sh
+# Создаем datasource с параметрами Connection Pool (аналоги HikariCP)
+# Параметры:
+# - maximumPoolSize=20 -> max-pool-size=20
+# - minimumIdle=5 -> min-pool-size=5
+# - idleTimeout=600000 -> idle-timeout-minutes=10
+# - track-statements=true (для отслеживания утечек)
+/subsystem=datasources/data-source=PostgresDS:add( \
+  jndi-name=java:/jboss/datasources/PostgresDS, \
+  driver-name=postgresql, \
+  connection-url=jdbc:postgresql://${env.POSTGRES_HOST}:${env.POSTGRES_PORT}/${env.POSTGRES_DB}, \
+  user-name=${env.POSTGRES_USER}, \
+  password=${env.POSTGRES_PASSWORD}, \
+  min-pool-size=5, \
+  max-pool-size=20, \
+  pool-prefill=true, \
+  pool-use-strict-min=false, \
+  idle-timeout-minutes=10, \
+  background-validation=true, \
+  background-validation-millis=60000, \
+  check-valid-connection-sql="SELECT 1", \
+  track-statements=true, \
+  enabled=true)
+
+/subsystem=datasources/data-source=PostgresDS:enable
